@@ -1,0 +1,5 @@
+[project]
+name = "verza-interfaces"
+version = "0.1.0-alpha.0"
+dependencies = []
+requires-python = ">=3.11"

@@ -1,0 +1,12 @@
+[project]
+name = "verza-capabilities"
+version = "0.1.0-alpha.0"
+dependencies = [
+    "verza-interfaces",
+    "verza-core"
+]
+requires-python = ">=3.11"
+
+[tool.uv.sources]
+verza-interfaces = { workspace = true }
+verza-core = { workspace = true }
