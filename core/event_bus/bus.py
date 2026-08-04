@@ -1,21 +1,33 @@
-from typing import Any, Callable, Dict, List
+from abc import ABC, abstractmethod
+from typing import Callable, Dict, List
+from contracts.events.base import BaseEvent
 
-class EventBus:
+class EventBus(ABC):
     """
-    Central Event Bus for the Verza Core.
+    Abstract Interface for the Event Bus.
+    """
+    @abstractmethod
+    def subscribe(self, event_type: str, handler: Callable[[BaseEvent], None]) -> None:
+        pass
+
+    @abstractmethod
+    def publish(self, event: BaseEvent) -> None:
+        pass
+
+class InMemoryEventBus(EventBus):
+    """
+    In-memory implementation of the Event Bus.
     """
     def __init__(self):
-        self._subscribers: Dict[str, List[Callable[[Any], None]]] = {}
+        self._subscribers: Dict[str, List[Callable[[BaseEvent], None]]] = {}
 
-    def subscribe(self, event_type: str, handler: Callable[[Any], None]) -> None:
+    def subscribe(self, event_type: str, handler: Callable[[BaseEvent], None]) -> None:
         if event_type not in self._subscribers:
             self._subscribers[event_type] = []
         self._subscribers[event_type].append(handler)
 
-    def publish(self, event_type: str, payload: Any) -> None:
-        """Publishes an event to all subscribers."""
+    def publish(self, event: BaseEvent) -> None:
+        event_type = event.__class__.__name__
         if event_type in self._subscribers:
             for handler in self._subscribers[event_type]:
-                handler(payload)
-        # Emit telemetry
-        print(f"[EventBus] Published: {event_type} | Payload: {payload}")
+                handler(event)
