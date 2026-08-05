@@ -1,18 +1,26 @@
-from typing import Protocol, Dict, Any
+from typing import Any, Protocol
+
+from contracts.schemas.context import AIContext
+from contracts.schemas.result import SpeechRecognitionResult
+
 
 class SpeechRecognizer(Protocol):
     """
     Interface for speech recognition providers.
     """
-    def recognize(self, audio_path: str, context: Dict[str, Any]) -> str:
+    __version__: str = "1.0"
+    
+    def recognize(self, audio_path: str, context: AIContext) -> SpeechRecognitionResult:
         """
         Recognizes speech from an audio file.
-        
-        Args:
-            audio_path: Path to the audio file.
-            context: AI Context Layer object containing scene/timeline metadata.
-            
-        Returns:
-            The recognized transcript.
         """
+        ...
+        
+    def health(self) -> bool:
+        ...
+        
+    def capabilities(self) -> dict[str, Any]:
+        ...
+        
+    def version(self) -> str:
         ...

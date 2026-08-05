@@ -1,5 +1,5 @@
-import json
-from typing import Any, Dict
+from typing import Any
+
 
 class SnapshotManager:
     """
@@ -7,7 +7,7 @@ class SnapshotManager:
     """
     
     @staticmethod
-    def store_snapshot(stage_name: str, input_data: Any, output_data: Any, context: Dict[str, Any]) -> None:
+    def store_snapshot(stage_name: str, input_data: Any, output_data: Any, context: dict[str, Any]) -> None:
         """
         Serializes and stores a snapshot of a stage execution.
         """
@@ -18,4 +18,4 @@ class SnapshotManager:
             "context": context
         }
         # In a real system, this would write to Artifact Storage.
-        print(f"[SnapshotManager] Stored snapshot for stage: {stage_name}")
+        print(f"[SnapshotManager] Stored snapshot for stage: {stage_name} | {snapshot}")
