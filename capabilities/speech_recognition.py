@@ -1,4 +1,5 @@
 import time
+
 from storage.catalog.repository import SnapshotRepository
 
 from contracts.events.base import StageFinished
