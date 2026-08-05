@@ -1,4 +1,5 @@
-from typing import Dict, Any
+from typing import Any
+
 from contracts.schemas.context import AIContext
 from contracts.schemas.result import SpeechRecognitionResult
 from core.telemetry.logging import get_logger
@@ -30,7 +31,7 @@ class WhisperRecognizer:
     def health(self) -> bool:
         return True
         
-    def capabilities(self) -> Dict[str, Any]:
+    def capabilities(self) -> dict[str, Any]:
         return {"supported_languages": ["en", "es", "fr"]}
         
     def version(self) -> str:

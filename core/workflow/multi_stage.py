@@ -1,15 +1,16 @@
-import sys
 import os
-import uuid
+import sys
 import time
+import uuid
 
 # Add workspace roots to path for M1 execution
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from bootstrap.container import VerzaContainer
-from contracts.schemas.context import AIContext
 from contracts.events.base import WorkflowStarted
+from contracts.schemas.context import AIContext
 from core.telemetry.logging import configure_logging, get_logger
+
 
 def run_m1_prototype():
     configure_logging()
@@ -52,6 +53,7 @@ def run_m1_prototype():
     # 3. Simulate Pipeline
     logger.info("branch_starting", branch="scene_analysis", trace_id=trace_id)
     scene_result = scene_cap.execute(context, trace_id=trace_id)
+    logger.debug("scene_analysis_completed", result=scene_result, trace_id=trace_id)
     
     logger.info("branch_starting", branch="speech_recognition", trace_id=trace_id)
     speech_result = speech_cap.execute("sample_audio.wav", context, trace_id)

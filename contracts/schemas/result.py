@@ -1,14 +1,16 @@
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 from pydantic import BaseModel, Field
+
 
 class ExecutionResult(BaseModel):
     success: bool
     duration_ms: int
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
     provider: str
     model: str
-    warnings: List[str] = Field(default_factory=list)
-    errors: List[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    errors: list[str] = Field(default_factory=list)
 
 class SpeechRecognitionResult(ExecutionResult):
     transcript: str
@@ -25,5 +27,5 @@ class TTSResult(ExecutionResult):
     
 class EvaluationResult(ExecutionResult):
     score: float
-    metrics: Dict[str, float]
+    metrics: dict[str, float]
     passed: bool

@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
+
 class Queue(ABC):
     @abstractmethod
     def push(self, topic: str, message: Any) -> None:
@@ -20,6 +21,6 @@ class MemoryQueue(Queue):
         self._queues[topic].append(message)
         
     def pop(self, topic: str) -> Any:
-        if topic in self._queues and self._queues[topic]:
+        if self._queues.get(topic):
             return self._queues[topic].pop(0)
         return None

@@ -1,6 +1,8 @@
-from typing import Protocol, Dict, Any
+from typing import Any, Protocol
+
 from contracts.schemas.context import AIContext
 from contracts.schemas.result import SpeechRecognitionResult
+
 
 class SpeechRecognizer(Protocol):
     """
@@ -17,7 +19,7 @@ class SpeechRecognizer(Protocol):
     def health(self) -> bool:
         ...
         
-    def capabilities(self) -> Dict[str, Any]:
+    def capabilities(self) -> dict[str, Any]:
         ...
         
     def version(self) -> str:

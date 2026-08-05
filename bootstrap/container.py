@@ -1,8 +1,10 @@
 from dependency_injector import containers, providers
-from core.event_bus.bus import InMemoryEventBus
-from storage.catalog.repository import LocalSnapshotRepository
-from providers.speech.whisper.provider import WhisperRecognizer
+
 from capabilities.speech_recognition import SpeechRecognitionCapability
+from core.event_bus.bus import InMemoryEventBus
+from providers.speech.whisper.provider import WhisperRecognizer
+from storage.catalog.repository import LocalSnapshotRepository
+
 
 # Fake providers for M1
 class FakeSceneAnalyzer:

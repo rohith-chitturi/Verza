@@ -1,7 +1,8 @@
 from fastapi import FastAPI, Response
-from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
-from core.telemetry.logging import configure_logging, get_logger
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+
 from bootstrap.container import VerzaContainer
+from core.telemetry.logging import configure_logging, get_logger
 
 # Configure logging before app starts
 configure_logging()

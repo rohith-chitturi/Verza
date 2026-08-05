@@ -1,5 +1,6 @@
-from typing import List, Optional
+
 from pydantic import BaseModel
+
 
 class AIContext(BaseModel):
     """
@@ -9,9 +10,9 @@ class AIContext(BaseModel):
     tenant_id: str
     workflow_id: str
     language: str
-    scene: Optional[str] = None
-    characters: List[str] = []
+    scene: str | None = None
+    characters: list[str] = []
     glossary: dict[str, str] = {}
-    emotion: Optional[str] = None
+    emotion: str | None = None
     timeline_start_ms: int = 0
-    timeline_end_ms: Optional[int] = None
+    timeline_end_ms: int | None = None
