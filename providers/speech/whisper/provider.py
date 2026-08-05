@@ -20,7 +20,11 @@ class WhisperRecognizer:
         
         return SpeechRecognitionResult(
             transcript="This is a simulated transcript from Whisper.",
-            confidence=0.99
+            confidence=0.99,
+            success=True,
+            duration_ms=100,
+            provider="whisper",
+            model="large-v3"
         )
         
     def health(self) -> bool:

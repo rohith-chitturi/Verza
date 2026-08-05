@@ -62,15 +62,17 @@ def run_m1_prototype():
     logger.info("branch_starting", branch="tts", trace_id=trace_id)
     tts_result = tts_cap.execute(trans_result, context, trace_id=trace_id)
     
-    # 4. Simulate Parallel Branch: Evaluation
+    # 4. Simulate Branch: Evaluation (Sequential, consuming all artifacts)
     logger.info("branch_starting", branch="evaluation", trace_id=trace_id)
+    # Mocking evaluation execution which consumes all previous results
     time.sleep(0.1)
     
     logger.info(
         "m1_workflow_completed",
         trace_id=trace_id,
         final_transcript=speech_result.transcript,
-        confidence=speech_result.confidence
+        tts_audio=tts_result.metadata,
+        evaluation="passed"
     )
 
 if __name__ == "__main__":

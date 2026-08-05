@@ -17,9 +17,14 @@ class FakeCapability:
     def __init__(self, name, provider, event_bus, snapshot_repo):
         self.name = name
     def execute(self, *args, **kwargs):
-        from core.telemetry.logging import get_logger
-        get_logger(f"capabilities.{self.name}").info("stage_executing", stage=self.name)
-        return f"{self.name} Result"
+        from contracts.schemas.result import ExecutionResult
+        return ExecutionResult(
+            success=True,
+            duration_ms=50,
+            provider="fake_provider",
+            model="fake_model",
+            metadata={"result": f"{self.name} Result"}
+        )
 
 class VerzaContainer(containers.DeclarativeContainer):
     """
