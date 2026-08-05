@@ -10,7 +10,7 @@ logger = get_logger("bootstrap.app")
 
 app = FastAPI(title="Verza Platform API")
 container = VerzaContainer()
-app.container = container
+app.container = container  # type: ignore
 
 @app.get("/health")
 def health_check():
