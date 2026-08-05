@@ -1,5 +1,6 @@
 from contracts.schemas.result import ExecutionResult
 
+
 def test_execution_result_defaults():
     """Test that ExecutionResult initializes with default metadata and errors."""
     result = ExecutionResult(
