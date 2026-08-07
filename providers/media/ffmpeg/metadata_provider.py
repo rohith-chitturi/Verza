@@ -21,7 +21,7 @@ class FFmpegMetadataProvider:
             data = json.loads(result.stdout)
             
             # Parse output
-            video_stream = next((s for s in data.get("streams", []) if s.get("codec_type") == "video"), {})
+            video_stream: dict[str, Any] = next((s for s in data.get("streams", []) if s.get("codec_type") == "video"), {})
             duration = float(data.get("format", {}).get("duration", 0.0))
             framerate = eval(video_stream.get("r_frame_rate", "0/1")) if "r_frame_rate" in video_stream else 0.0
             resolution = f"{video_stream.get('width', 0)}x{video_stream.get('height', 0)}"

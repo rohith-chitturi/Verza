@@ -18,14 +18,14 @@ logger = get_logger("workflow.engine")
 class MockSceneSegmentationCapability(BaseCapability):
     @property
     def name(self) -> str: return "SceneSegmentation(Mock)"
-    def _execute(self, ctx: AIContext, tid: str, **kwargs) -> AIContext:
+    def _execute(self, context: AIContext, trace_id: str, **kwargs) -> AIContext:
         scenes = [{"id": "scene-1", "mood": "tense"}]
         return ctx.with_world(ctx.world.with_visual(ctx.world.visual.model_copy(update={"scenes": scenes})))
 
 class MockCharacterTrackingCapability(BaseCapability):
     @property
     def name(self) -> str: return "CharacterTracking(Mock)"
-    def _execute(self, ctx: AIContext, tid: str, **kwargs) -> AIContext:
+    def _execute(self, context: AIContext, trace_id: str, **kwargs) -> AIContext:
         from contracts.schemas.world import Character
         chars = [Character()]
         return ctx.with_world(ctx.world.with_visual(ctx.world.visual.model_copy(update={"characters": chars})))
@@ -33,29 +33,29 @@ class MockCharacterTrackingCapability(BaseCapability):
 class MockFaceTrackingCapability(BaseCapability):
     @property
     def name(self) -> str: return "FaceTracking(Mock)"
-    def _execute(self, ctx: AIContext, tid: str, **kwargs) -> AIContext: return ctx
+    def _execute(self, context: AIContext, trace_id: str, **kwargs) -> AIContext: return context
 
 class MockObjectDetectionCapability(BaseCapability):
     @property
     def name(self) -> str: return "ObjectDetection(Mock)"
-    def _execute(self, ctx: AIContext, tid: str, **kwargs) -> AIContext: return ctx
+    def _execute(self, context: AIContext, trace_id: str, **kwargs) -> AIContext: return context
 
 class MockActivitiesCapability(BaseCapability):
     @property
     def name(self) -> str: return "Activities(Mock)"
-    def _execute(self, ctx: AIContext, tid: str, **kwargs) -> AIContext: return ctx
+    def _execute(self, context: AIContext, trace_id: str, **kwargs) -> AIContext: return context
 
 class MockSemanticGraphCapability(BaseCapability):
     @property
     def name(self) -> str: return "SemanticGraph(Mock)"
-    def _execute(self, ctx: AIContext, tid: str, **kwargs) -> AIContext:
+    def _execute(self, context: AIContext, trace_id: str, **kwargs) -> AIContext:
         kg = {"character-001": {"talking_to": "character-002"}}
         return ctx.with_world(ctx.world.with_semantic(ctx.world.semantic.model_copy(update={"knowledge_graph": kg})))
 
 class MockWorldSynthesisCapability(BaseCapability):
     @property
     def name(self) -> str: return "WorldStateSynthesis(Mock)"
-    def _execute(self, ctx: AIContext, tid: str, **kwargs) -> AIContext: return ctx
+    def _execute(self, context: AIContext, trace_id: str, **kwargs) -> AIContext: return context
 
 # ---------------------------------------------------------
 # The Engine

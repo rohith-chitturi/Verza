@@ -60,7 +60,7 @@ class BaseCapability(ABC):
         before_dict = before.model_dump()
         after_dict = after.model_dump()
         
-        diff = {"added": {}, "changed": {}}
+        diff: dict[str, Any] = {"added": {}, "changed": {}}
         for domain, content in after_dict.items():
             if before_dict.get(domain) != content:
                 diff["changed"][domain] = "Updated"
