@@ -2,7 +2,7 @@ from contracts.schemas.context import AIContext
 from capabilities.base import BaseCapability
 from interfaces.media.metadata import MetadataProvider
 
-class MetadataExtractionCapability(BaseModel) if False else BaseCapability:
+class MetadataExtractionCapability(BaseCapability):
     def __init__(self, provider: MetadataProvider):
         self.provider = provider
         

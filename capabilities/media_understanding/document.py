@@ -2,7 +2,7 @@ from contracts.schemas.context import AIContext
 from capabilities.base import BaseCapability
 from interfaces.vision.document_understanding import DocumentUnderstandingProvider
 
-class DocumentUnderstandingCapability(BaseModel) if False else BaseCapability:
+class DocumentUnderstandingCapability(BaseCapability):
     def __init__(self, provider: DocumentUnderstandingProvider):
         self.provider = provider
         

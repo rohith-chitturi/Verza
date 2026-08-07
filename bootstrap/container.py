@@ -5,6 +5,16 @@ from capabilities.speech_recognition import SpeechRecognitionCapability
 from core.event_bus.bus import InMemoryEventBus
 from providers.speech.whisper.provider import WhisperRecognizer
 
+# M2 Imports
+from providers.media.ffmpeg.metadata_provider import FFmpegMetadataProvider
+from providers.vision.pyscenedetect.provider import PySceneDetectProvider
+from providers.vision.easyocr.provider import EasyOCRProvider
+from providers.media.ffmpeg.audio_provider import AudioSegmentationProvider
+
+from capabilities.media_understanding.metadata import MetadataExtractionCapability
+from capabilities.media_understanding.shot_detector import ShotDetectionCapability
+from capabilities.media_understanding.document import DocumentUnderstandingCapability
+from capabilities.media_understanding.audio import AudioSegmentationCapability
 
 # Fake providers for M1
 class FakeSceneAnalyzer:
@@ -37,13 +47,19 @@ class VerzaContainer(containers.DeclarativeContainer):
     event_bus = providers.Singleton(InMemoryEventBus)
     snapshot_repository = providers.Singleton(LocalSnapshotRepository)
     
-    # Providers
+    # Providers (M1)
     speech_recognizer_provider = providers.Singleton(WhisperRecognizer)
     scene_analyzer_provider = providers.Singleton(FakeSceneAnalyzer)
     translator_provider = providers.Singleton(FakeTranslator)
     tts_provider = providers.Singleton(FakeTTS)
     
-    # Capabilities
+    # Providers (M2)
+    ffmpeg_metadata_provider = providers.Singleton(FFmpegMetadataProvider)
+    pyscenedetect_provider = providers.Singleton(PySceneDetectProvider)
+    easyocr_provider = providers.Singleton(EasyOCRProvider)
+    ffmpeg_audio_provider = providers.Singleton(AudioSegmentationProvider)
+    
+    # Capabilities (M1)
     speech_recognition_capability = providers.Factory(
         SpeechRecognitionCapability,
         provider=speech_recognizer_provider,
@@ -61,4 +77,25 @@ class VerzaContainer(containers.DeclarativeContainer):
     
     tts_capability = providers.Factory(
         FakeCapability, name="TTS", provider=tts_provider, event_bus=event_bus, snapshot_repo=snapshot_repository
+    )
+    
+    # Capabilities (M2)
+    metadata_cap = providers.Factory(
+        MetadataExtractionCapability,
+        provider=ffmpeg_metadata_provider
+    )
+    
+    shot_cap = providers.Factory(
+        ShotDetectionCapability,
+        provider=pyscenedetect_provider
+    )
+    
+    doc_cap = providers.Factory(
+        DocumentUnderstandingCapability,
+        provider=easyocr_provider
+    )
+    
+    audio_cap = providers.Factory(
+        AudioSegmentationCapability,
+        provider=ffmpeg_audio_provider
     )

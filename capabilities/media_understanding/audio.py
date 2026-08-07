@@ -2,7 +2,7 @@ from contracts.schemas.context import AIContext
 from capabilities.base import BaseCapability
 from interfaces.media.audio_segmenter import AudioSegmentationProvider
 
-class AudioSegmentationCapability(BaseModel) if False else BaseCapability:
+class AudioSegmentationCapability(BaseCapability):
     def __init__(self, provider: AudioSegmentationProvider):
         self.provider = provider
         

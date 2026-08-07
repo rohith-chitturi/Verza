@@ -3,7 +3,7 @@ from contracts.schemas.world import VisualContext
 from capabilities.base import BaseCapability
 from interfaces.vision.shot_detector import ShotDetectionProvider
 
-class ShotDetectionCapability(BaseModel) if False else BaseCapability:
+class ShotDetectionCapability(BaseCapability):
     def __init__(self, provider: ShotDetectionProvider):
         self.provider = provider
         
