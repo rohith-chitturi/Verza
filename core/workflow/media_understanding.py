@@ -1,14 +1,14 @@
-import asyncio
 from dependency_injector.wiring import Provide, inject
-from contracts.schemas.context import AIContext
-from core.telemetry.logging import get_logger
+
+from capabilities.base import BaseCapability
+from capabilities.media_understanding.audio import AudioSegmentationCapability
+from capabilities.media_understanding.document import DocumentUnderstandingCapability
 
 # Import the actual capabilities
 from capabilities.media_understanding.metadata import MetadataExtractionCapability
 from capabilities.media_understanding.shot_detector import ShotDetectionCapability
-from capabilities.media_understanding.document import DocumentUnderstandingCapability
-from capabilities.media_understanding.audio import AudioSegmentationCapability
-from capabilities.base import BaseCapability
+from contracts.schemas.context import AIContext
+from core.telemetry.logging import get_logger
 
 logger = get_logger("workflow.engine")
 

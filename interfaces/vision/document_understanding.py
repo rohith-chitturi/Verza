@@ -1,5 +1,7 @@
-from typing import Protocol, Any, List
+from typing import Any, Protocol
+
 from contracts.schemas.world import DocumentUnderstanding
+
 
 class DocumentUnderstandingProvider(Protocol):
     """
@@ -7,7 +9,7 @@ class DocumentUnderstandingProvider(Protocol):
     """
     __version__: str = "1.0"
     
-    def extract_text(self, media_path: str) -> List[DocumentUnderstanding]:
+    def extract_text(self, media_path: str) -> list[DocumentUnderstanding]:
         """
         Extracts text, signs, or labels from the visual media.
         """

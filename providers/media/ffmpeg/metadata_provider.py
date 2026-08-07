@@ -1,6 +1,7 @@
-import subprocess
 import json
+import subprocess
 from typing import Any
+
 from contracts.schemas.world import MediaContext, Provenance
 from core.telemetry.logging import get_logger
 
@@ -28,7 +29,7 @@ class FFmpegMetadataProvider:
             
             logger.info("metadata_extracted_real", path=media_path)
             
-        except (subprocess.CalledProcessError, FileNotFoundError, Exception) as e:
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
             logger.warning("ffprobe_failed_using_fallback", error=str(e), path=media_path)
             duration = 120.0
             framerate = 24.0

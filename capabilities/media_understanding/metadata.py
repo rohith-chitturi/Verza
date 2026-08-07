@@ -1,6 +1,7 @@
-from contracts.schemas.context import AIContext
 from capabilities.base import BaseCapability
+from contracts.schemas.context import AIContext
 from interfaces.media.metadata import MetadataProvider
+
 
 class MetadataExtractionCapability(BaseCapability):
     def __init__(self, provider: MetadataProvider):

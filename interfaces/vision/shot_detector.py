@@ -1,4 +1,5 @@
-from typing import Protocol, Any, List, Dict
+from typing import Any, Protocol
+
 
 class ShotDetectionProvider(Protocol):
     """
@@ -6,7 +7,7 @@ class ShotDetectionProvider(Protocol):
     """
     __version__: str = "1.0"
     
-    def detect_shots(self, media_path: str) -> List[Dict[str, Any]]:
+    def detect_shots(self, media_path: str) -> list[dict[str, Any]]:
         """
         Returns a list of shots (start, end frames/times).
         """

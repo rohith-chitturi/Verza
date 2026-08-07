@@ -1,5 +1,6 @@
-from typing import Any, List
-from contracts.schemas.world import DocumentUnderstanding, Certainty
+from typing import Any
+
+from contracts.schemas.world import Certainty, DocumentUnderstanding
 from core.telemetry.logging import get_logger
 
 logger = get_logger("providers.easyocr")
@@ -7,7 +8,7 @@ logger = get_logger("providers.easyocr")
 class EasyOCRProvider:
     __version__: str = "1.0"
     
-    def extract_text(self, media_path: str) -> List[DocumentUnderstanding]:
+    def extract_text(self, media_path: str) -> list[DocumentUnderstanding]:
         # Simulated EasyOCR response
         logger.info("extracting_text_mock", path=media_path)
         

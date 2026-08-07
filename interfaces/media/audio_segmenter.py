@@ -1,5 +1,7 @@
-from typing import Protocol, Any
+from typing import Any, Protocol
+
 from contracts.schemas.world import AudioContext
+
 
 class AudioSegmentationProvider(Protocol):
     """

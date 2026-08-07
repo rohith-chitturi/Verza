@@ -1,6 +1,6 @@
 import uuid
-from typing import Any, List, Dict
-from contracts.schemas.world import Provenance
+from typing import Any
+
 from core.telemetry.logging import get_logger
 
 logger = get_logger("providers.pyscenedetect")
@@ -8,7 +8,7 @@ logger = get_logger("providers.pyscenedetect")
 class PySceneDetectProvider:
     __version__: str = "1.0"
     
-    def detect_shots(self, media_path: str) -> List[Dict[str, Any]]:
+    def detect_shots(self, media_path: str) -> list[dict[str, Any]]:
         # In a real environment, we would import scenedetect
         # For M2 validation, we return a deterministic mock response representing the real PySceneDetect output
         logger.info("detecting_shots_mock", path=media_path)

@@ -1,7 +1,10 @@
-from pydantic import BaseModel, Field, ConfigDict
-from typing import Dict, Any, Optional
 import uuid
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+
 from contracts.schemas.world import WorldState
+
 
 class AIContext(BaseModel):
     """
@@ -12,7 +15,7 @@ class AIContext(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     media_id: str
     tenant_id: str = "default"
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
     
     # The M2 Unified World Model
     world: WorldState = Field(default_factory=WorldState)

@@ -1,6 +1,7 @@
-from contracts.schemas.context import AIContext
 from capabilities.base import BaseCapability
+from contracts.schemas.context import AIContext
 from interfaces.vision.document_understanding import DocumentUnderstandingProvider
+
 
 class DocumentUnderstandingCapability(BaseCapability):
     def __init__(self, provider: DocumentUnderstandingProvider):

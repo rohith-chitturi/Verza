@@ -1,7 +1,9 @@
-from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, ConfigDict, Field
-from datetime import datetime
 import uuid
+from datetime import datetime
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+
 
 # ---------------------------------------------------------
 # Core Abstractions
@@ -20,19 +22,19 @@ class Certainty(BaseModel):
     
 class Evidence(BaseModel):
     model_config = ConfigDict(frozen=True)
-    frames: List[int] = Field(default_factory=list)
-    shots: List[str] = Field(default_factory=list)
+    frames: list[int] = Field(default_factory=list)
+    shots: list[str] = Field(default_factory=list)
 
 # ---------------------------------------------------------
 # Media Context
 # ---------------------------------------------------------
 class MediaContext(BaseModel):
     model_config = ConfigDict(frozen=True)
-    resolution: Optional[str] = None
-    framerate: Optional[float] = None
-    duration_s: Optional[float] = None
-    codecs: Dict[str, str] = Field(default_factory=dict)
-    provenance: Optional[Provenance] = None
+    resolution: str | None = None
+    framerate: float | None = None
+    duration_s: float | None = None
+    codecs: dict[str, str] = Field(default_factory=dict)
+    provenance: Provenance | None = None
 
 # ---------------------------------------------------------
 # Visual Context
@@ -40,54 +42,54 @@ class MediaContext(BaseModel):
 class Character(BaseModel):
     model_config = ConfigDict(frozen=True)
     id: str = Field(default_factory=lambda: f"character-{uuid.uuid4().hex[:8]}")
-    face_id: Optional[str] = None
-    voice_id: Optional[str] = None
-    embeddings: List[float] = Field(default_factory=list)
-    appearances: List[str] = Field(default_factory=list) # Frame IDs or Shot IDs
-    emotion_history: List[Dict[str, Any]] = Field(default_factory=list)
-    provenance: Optional[Provenance] = None
+    face_id: str | None = None
+    voice_id: str | None = None
+    embeddings: list[float] = Field(default_factory=list)
+    appearances: list[str] = Field(default_factory=list) # Frame IDs or Shot IDs
+    emotion_history: list[dict[str, Any]] = Field(default_factory=list)
+    provenance: Provenance | None = None
 
 class Activity(BaseModel):
     model_config = ConfigDict(frozen=True)
     type: str # e.g., "Walking", "Talking"
-    participants: List[str] = Field(default_factory=list) # Entity IDs
-    objects: List[str] = Field(default_factory=list) # Entity IDs
-    location: Optional[str] = None
-    evidence: Optional[Evidence] = None
+    participants: list[str] = Field(default_factory=list) # Entity IDs
+    objects: list[str] = Field(default_factory=list) # Entity IDs
+    location: str | None = None
+    evidence: Evidence | None = None
 
 class Camera(BaseModel):
     model_config = ConfigDict(frozen=True)
-    shot_type: Optional[str] = None # Wide, Close-up, etc.
-    movement: Optional[str] = None # Pan, Tilt, etc.
-    angle: Optional[str] = None # High, Low
-    lens: Optional[str] = None # Wide, Normal, Telephoto
+    shot_type: str | None = None # Wide, Close-up, etc.
+    movement: str | None = None # Pan, Tilt, etc.
+    angle: str | None = None # High, Low
+    lens: str | None = None # Wide, Normal, Telephoto
 
 class Motion(BaseModel):
     model_config = ConfigDict(frozen=True)
-    camera_motion: Optional[str] = None
-    object_motion: Dict[str, str] = Field(default_factory=dict)
-    character_motion: Dict[str, str] = Field(default_factory=dict)
+    camera_motion: str | None = None
+    object_motion: dict[str, str] = Field(default_factory=dict)
+    character_motion: dict[str, str] = Field(default_factory=dict)
 
 class DocumentUnderstanding(BaseModel):
     model_config = ConfigDict(frozen=True)
     detected_text: str
     language: str
-    location: List[int] = Field(default_factory=list) # Bounding box
-    certainty: Optional[Certainty] = None
+    location: list[int] = Field(default_factory=list) # Bounding box
+    certainty: Certainty | None = None
 
 class VisualContext(BaseModel):
     model_config = ConfigDict(frozen=True)
-    sequences: List[Dict[str, Any]] = Field(default_factory=list)
-    scenes: List[Dict[str, Any]] = Field(default_factory=list)
-    shots: List[Dict[str, Any]] = Field(default_factory=list)
-    frames: List[Dict[str, Any]] = Field(default_factory=list)
-    characters: List[Character] = Field(default_factory=list)
-    faces: List[Dict[str, Any]] = Field(default_factory=list)
-    objects: List[Dict[str, Any]] = Field(default_factory=list)
-    activities: List[Activity] = Field(default_factory=list)
-    motion: Optional[Motion] = None
-    camera: Optional[Camera] = None
-    documents: List[DocumentUnderstanding] = Field(default_factory=list)
+    sequences: list[dict[str, Any]] = Field(default_factory=list)
+    scenes: list[dict[str, Any]] = Field(default_factory=list)
+    shots: list[dict[str, Any]] = Field(default_factory=list)
+    frames: list[dict[str, Any]] = Field(default_factory=list)
+    characters: list[Character] = Field(default_factory=list)
+    faces: list[dict[str, Any]] = Field(default_factory=list)
+    objects: list[dict[str, Any]] = Field(default_factory=list)
+    activities: list[Activity] = Field(default_factory=list)
+    motion: Motion | None = None
+    camera: Camera | None = None
+    documents: list[DocumentUnderstanding] = Field(default_factory=list)
 
 # ---------------------------------------------------------
 # Audio Context
@@ -96,43 +98,43 @@ class AudioClip(BaseModel):
     model_config = ConfigDict(frozen=True)
     start_s: float
     end_s: float
-    content: Optional[str] = None
+    content: str | None = None
 
 class AudioSegment(BaseModel):
     model_config = ConfigDict(frozen=True)
-    clips: List[AudioClip] = Field(default_factory=list)
+    clips: list[AudioClip] = Field(default_factory=list)
 
 class AudioTrack(BaseModel):
     model_config = ConfigDict(frozen=True)
-    segments: List[AudioSegment] = Field(default_factory=list)
+    segments: list[AudioSegment] = Field(default_factory=list)
 
 class AudioContext(BaseModel):
     model_config = ConfigDict(frozen=True)
-    speech_tracks: List[AudioTrack] = Field(default_factory=list)
-    music_tracks: List[AudioTrack] = Field(default_factory=list)
-    effects: List[AudioTrack] = Field(default_factory=list)
-    ambience: List[AudioTrack] = Field(default_factory=list)
-    silence: List[AudioTrack] = Field(default_factory=list)
+    speech_tracks: list[AudioTrack] = Field(default_factory=list)
+    music_tracks: list[AudioTrack] = Field(default_factory=list)
+    effects: list[AudioTrack] = Field(default_factory=list)
+    ambience: list[AudioTrack] = Field(default_factory=list)
+    silence: list[AudioTrack] = Field(default_factory=list)
 
 # ---------------------------------------------------------
 # Semantic & Others
 # ---------------------------------------------------------
 class SemanticContext(BaseModel):
     model_config = ConfigDict(frozen=True)
-    relationships: List[Dict[str, Any]] = Field(default_factory=list)
-    knowledge_graph: Dict[str, Any] = Field(default_factory=dict)
-    events: List[Dict[str, Any]] = Field(default_factory=list)
-    intentions: List[Dict[str, Any]] = Field(default_factory=list)
-    scene_moods: Dict[str, str] = Field(default_factory=dict)
+    relationships: list[dict[str, Any]] = Field(default_factory=list)
+    knowledge_graph: dict[str, Any] = Field(default_factory=dict)
+    events: list[dict[str, Any]] = Field(default_factory=list)
+    intentions: list[dict[str, Any]] = Field(default_factory=list)
+    scene_moods: dict[str, str] = Field(default_factory=dict)
 
 class TemporalContext(BaseModel):
     model_config = ConfigDict(frozen=True)
-    timeline: List[Dict[str, Any]] = Field(default_factory=list)
+    timeline: list[dict[str, Any]] = Field(default_factory=list)
 
 class SpatialContext(BaseModel):
     model_config = ConfigDict(frozen=True)
-    locations: List[Dict[str, Any]] = Field(default_factory=list)
-    environment: Optional[str] = None
+    locations: list[dict[str, Any]] = Field(default_factory=list)
+    environment: str | None = None
 
 class QualityContext(BaseModel):
     model_config = ConfigDict(frozen=True)
@@ -141,7 +143,7 @@ class QualityContext(BaseModel):
     confidence_ocr: float = 0.0
     confidence_scene: float = 0.0
     confidence_overall: float = 0.0
-    missing_data: List[str] = Field(default_factory=list)
+    missing_data: list[str] = Field(default_factory=list)
 
 # ---------------------------------------------------------
 # World State (Immutable)

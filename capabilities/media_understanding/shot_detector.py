@@ -1,7 +1,7 @@
-from contracts.schemas.context import AIContext
-from contracts.schemas.world import VisualContext
 from capabilities.base import BaseCapability
+from contracts.schemas.context import AIContext
 from interfaces.vision.shot_detector import ShotDetectionProvider
+
 
 class ShotDetectionCapability(BaseCapability):
     def __init__(self, provider: ShotDetectionProvider):
