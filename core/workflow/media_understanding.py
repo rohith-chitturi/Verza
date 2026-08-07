@@ -20,7 +20,7 @@ class MockSceneSegmentationCapability(BaseCapability):
     def name(self) -> str: return "SceneSegmentation(Mock)"
     def _execute(self, context: AIContext, trace_id: str, **kwargs) -> AIContext:
         scenes = [{"id": "scene-1", "mood": "tense"}]
-        return ctx.with_world(ctx.world.with_visual(ctx.world.visual.model_copy(update={"scenes": scenes})))
+        return context.with_world(context.world.with_visual(context.world.visual.model_copy(update={"scenes": scenes})))
 
 class MockCharacterTrackingCapability(BaseCapability):
     @property
@@ -28,7 +28,7 @@ class MockCharacterTrackingCapability(BaseCapability):
     def _execute(self, context: AIContext, trace_id: str, **kwargs) -> AIContext:
         from contracts.schemas.world import Character
         chars = [Character()]
-        return ctx.with_world(ctx.world.with_visual(ctx.world.visual.model_copy(update={"characters": chars})))
+        return context.with_world(context.world.with_visual(context.world.visual.model_copy(update={"characters": chars})))
 
 class MockFaceTrackingCapability(BaseCapability):
     @property
@@ -50,7 +50,7 @@ class MockSemanticGraphCapability(BaseCapability):
     def name(self) -> str: return "SemanticGraph(Mock)"
     def _execute(self, context: AIContext, trace_id: str, **kwargs) -> AIContext:
         kg = {"character-001": {"talking_to": "character-002"}}
-        return ctx.with_world(ctx.world.with_semantic(ctx.world.semantic.model_copy(update={"knowledge_graph": kg})))
+        return context.with_world(context.world.with_semantic(context.world.semantic.model_copy(update={"knowledge_graph": kg})))
 
 class MockWorldSynthesisCapability(BaseCapability):
     @property
