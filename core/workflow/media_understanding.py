@@ -106,7 +106,7 @@ def run_m2_engine(
     doc_cap: DocumentUnderstandingCapability = Provide["doc_cap"],
     audio_cap: AudioSegmentationCapability = Provide["audio_cap"]
 ):
-    context = AIContext(media_id="sample_media.mp4")
+    context = AIContext(media_id="sample_media.mp4", workflow_id="w-123", language="en")
     engine = MediaUnderstandingEngine(metadata_cap, shot_cap, doc_cap, audio_cap)
     
     final_context = engine.execute(context)
