@@ -1,7 +1,9 @@
 import time
 import uuid
-from typing import Any, Dict, Optional
+from typing import Any
+
 from pydantic import BaseModel, Field
+
 
 class BaseEvent(BaseModel):
     """
@@ -11,8 +13,8 @@ class BaseEvent(BaseModel):
     timestamp_ms: int = Field(default_factory=lambda: int(time.time() * 1000))
     
     workflow_id: str
-    job_id: Optional[str] = None
-    task_id: Optional[str] = None
+    job_id: str | None = None
+    task_id: str | None = None
     
     trace_id: str
     correlation_id: str
@@ -24,4 +26,4 @@ class StageFinished(BaseEvent):
     stage_name: str
     duration_ms: int
     success: bool
-    metrics: Dict[str, Any] = {}
+    metrics: dict[str, Any] = {}

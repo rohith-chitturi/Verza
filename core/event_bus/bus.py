@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Callable, Dict, List
+from collections.abc import Callable
+
 from contracts.events.base import BaseEvent
+
 
 class EventBus(ABC):
     """
@@ -19,7 +21,7 @@ class InMemoryEventBus(EventBus):
     In-memory implementation of the Event Bus.
     """
     def __init__(self):
-        self._subscribers: Dict[str, List[Callable[[BaseEvent], None]]] = {}
+        self._subscribers: dict[str, list[Callable[[BaseEvent], None]]] = {}
 
     def subscribe(self, event_type: str, handler: Callable[[BaseEvent], None]) -> None:
         if event_type not in self._subscribers:

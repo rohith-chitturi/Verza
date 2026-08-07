@@ -1,13 +1,14 @@
 import time
-from typing import Dict, Any
+
+from storage.catalog.repository import SnapshotRepository
+
+from contracts.events.base import StageFinished
 from contracts.schemas.context import AIContext
 from contracts.schemas.result import SpeechRecognitionResult
 from contracts.schemas.snapshot import Snapshot
-from contracts.events.base import StageFinished
-from interfaces.speech.recognizer import SpeechRecognizer
 from core.event_bus.bus import EventBus
-from storage.catalog.repository import SnapshotRepository
 from core.telemetry.logging import get_logger
+from interfaces.speech.recognizer import SpeechRecognizer
 
 logger = get_logger("capabilities.speech_recognition")
 

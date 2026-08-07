@@ -1,7 +1,9 @@
 import time
 import uuid
-from typing import Any, Dict
+from typing import Any
+
 from pydantic import BaseModel, Field
+
 
 class Snapshot(BaseModel):
     """
@@ -11,11 +13,11 @@ class Snapshot(BaseModel):
     workflow_id: str
     job_id: str
     stage: str
-    input_data: Dict[str, Any]
-    output_data: Dict[str, Any]
-    metrics: Dict[str, float] = {}
+    input_data: dict[str, Any]
+    output_data: dict[str, Any]
+    metrics: dict[str, float] = {}
     timestamp_ms: int = Field(default_factory=lambda: int(time.time() * 1000))
-    context: Dict[str, Any]
+    context: dict[str, Any]
     provider: str
     model: str
     version: str

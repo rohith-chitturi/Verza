@@ -1,8 +1,18 @@
 from dependency_injector import containers, providers
-from core.event_bus.bus import InMemoryEventBus
 from storage.catalog.repository import LocalSnapshotRepository
-from providers.speech.whisper.provider import WhisperRecognizer
+
+from capabilities.media_understanding.audio import AudioSegmentationCapability
+from capabilities.media_understanding.document import DocumentUnderstandingCapability
+from capabilities.media_understanding.metadata import MetadataExtractionCapability
+from capabilities.media_understanding.shot_detector import ShotDetectionCapability
 from capabilities.speech_recognition import SpeechRecognitionCapability
+from core.event_bus.bus import InMemoryEventBus
+from providers.media.ffmpeg.audio_provider import AudioSegmentationProvider
+from providers.media.ffmpeg.metadata_provider import FFmpegMetadataProvider
+from providers.speech.whisper.provider import WhisperRecognizer
+from providers.vision.easyocr.provider import EasyOCRProvider
+from providers.vision.pyscenedetect.provider import PySceneDetectProvider
+
 
 # Fake providers for M1
 class FakeSceneAnalyzer:
@@ -17,9 +27,14 @@ class FakeCapability:
     def __init__(self, name, provider, event_bus, snapshot_repo):
         self.name = name
     def execute(self, *args, **kwargs):
-        from core.telemetry.logging import get_logger
-        get_logger(f"capabilities.{self.name}").info("stage_executing", stage=self.name)
-        return f"{self.name} Result"
+        from contracts.schemas.result import ExecutionResult
+        return ExecutionResult(
+            success=True,
+            duration_ms=50,
+            provider="fake_provider",
+            model="fake_model",
+            metadata={"result": f"{self.name} Result"}
+        )
 
 class VerzaContainer(containers.DeclarativeContainer):
     """
@@ -30,13 +45,19 @@ class VerzaContainer(containers.DeclarativeContainer):
     event_bus = providers.Singleton(InMemoryEventBus)
     snapshot_repository = providers.Singleton(LocalSnapshotRepository)
     
-    # Providers
+    # Providers (M1)
     speech_recognizer_provider = providers.Singleton(WhisperRecognizer)
     scene_analyzer_provider = providers.Singleton(FakeSceneAnalyzer)
     translator_provider = providers.Singleton(FakeTranslator)
     tts_provider = providers.Singleton(FakeTTS)
     
-    # Capabilities
+    # Providers (M2)
+    ffmpeg_metadata_provider = providers.Singleton(FFmpegMetadataProvider)
+    pyscenedetect_provider = providers.Singleton(PySceneDetectProvider)
+    easyocr_provider = providers.Singleton(EasyOCRProvider)
+    ffmpeg_audio_provider = providers.Singleton(AudioSegmentationProvider)
+    
+    # Capabilities (M1)
     speech_recognition_capability = providers.Factory(
         SpeechRecognitionCapability,
         provider=speech_recognizer_provider,
@@ -54,4 +75,25 @@ class VerzaContainer(containers.DeclarativeContainer):
     
     tts_capability = providers.Factory(
         FakeCapability, name="TTS", provider=tts_provider, event_bus=event_bus, snapshot_repo=snapshot_repository
+    )
+    
+    # Capabilities (M2)
+    metadata_cap = providers.Factory(
+        MetadataExtractionCapability,
+        provider=ffmpeg_metadata_provider
+    )
+    
+    shot_cap = providers.Factory(
+        ShotDetectionCapability,
+        provider=pyscenedetect_provider
+    )
+    
+    doc_cap = providers.Factory(
+        DocumentUnderstandingCapability,
+        provider=easyocr_provider
+    )
+    
+    audio_cap = providers.Factory(
+        AudioSegmentationCapability,
+        provider=ffmpeg_audio_provider
     )

@@ -1,12 +1,13 @@
-import sys
 import os
+import sys
 
 # Add workspace roots to path for M0 prototype execution
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from core.event_bus.bus import EventBus
 from capabilities.speech_recognition import SpeechRecognitionCapability
+from core.event_bus.bus import EventBus
 from providers.speech.whisper.provider import WhisperRecognizer
+
 
 def run_m0_prototype():
     print("=== Verza M0 Prototype Executing ===\n")
