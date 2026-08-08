@@ -1,4 +1,5 @@
 from dependency_injector import containers, providers
+from storage.catalog.repository import LocalSnapshotRepository
 
 from capabilities.media_understanding.audio import AudioSegmentationCapability
 from capabilities.media_understanding.document import DocumentUnderstandingCapability
@@ -11,7 +12,6 @@ from providers.media.ffmpeg.metadata_provider import FFmpegMetadataProvider
 from providers.speech.whisper.provider import WhisperRecognizer
 from providers.vision.easyocr.provider import EasyOCRProvider
 from providers.vision.pyscenedetect.provider import PySceneDetectProvider
-from storage.catalog.repository import LocalSnapshotRepository
 
 
 # Fake providers for M1
