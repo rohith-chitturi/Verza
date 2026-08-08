@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from contracts.schemas.world import WorldState
 
+
 class ExecutionContext(BaseModel):
     model_config = ConfigDict(frozen=True)
     trace_id: str
