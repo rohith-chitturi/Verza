@@ -97,3 +97,27 @@ class VerzaContainer(containers.DeclarativeContainer):
         AudioSegmentationCapability,
         provider=ffmpeg_audio_provider
     )
+
+    # Core State & Prompts (M3.1)
+    from core.prompts.registry import PromptRegistry
+    from core.state.journal import DeltaJournal
+    from core.state.merger import DeltaMerger
+    from core.state.validator import DeltaValidator
+    
+    delta_validator = providers.Singleton(DeltaValidator)
+    delta_merger = providers.Singleton(DeltaMerger)
+    delta_journal = providers.Singleton(DeltaJournal)
+    prompt_registry = providers.Singleton(PromptRegistry)
+    
+    # Cognitive Providers (M3.1)
+    from interfaces.cognitive.mock_vlm import MockVLMProvider
+    mock_vlm_provider = providers.Singleton(MockVLMProvider)
+    
+    # Interpreters (M3.1)
+    from capabilities.cognitive.activity_interpreter import ActivityInterpreter
+    from capabilities.cognitive.character_interpreter import CharacterInterpreter
+    from capabilities.cognitive.scene_interpreter import SceneInterpreter
+    
+    scene_interpreter = providers.Factory(SceneInterpreter)
+    character_interpreter = providers.Factory(CharacterInterpreter)
+    activity_interpreter = providers.Factory(ActivityInterpreter)

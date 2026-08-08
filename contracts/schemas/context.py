@@ -6,6 +6,15 @@ from pydantic import BaseModel, ConfigDict, Field
 from contracts.schemas.world import WorldState
 
 
+class ExecutionContext(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    trace_id: str
+    workflow_id: str
+    tenant_id: str = "default"
+    project_id: str = "default"
+    runtime_metadata: dict[str, Any] = Field(default_factory=dict)
+
+
 class AIContext(BaseModel):
     """
     Strongly typed AI Context Layer.
