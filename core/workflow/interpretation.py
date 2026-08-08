@@ -64,7 +64,7 @@ class InterpretationEngine:
                     context=exec_ctx,
                     vlm_provider=self.vlm_provider
                 )
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 logger.error(f"Interpreter {interpreter.name} failed: {e}")
                 continue
             

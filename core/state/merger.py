@@ -43,16 +43,14 @@ class DeltaMerger:
                         if item.get("id") == op.entity_id:
                             item.update(op.payload)
                             break
-                elif isinstance(target_list, dict):
-                    if op.entity_id in target_list:
-                        target_list[op.entity_id].update(op.payload)
+                elif isinstance(target_list, dict) and op.entity_id in target_list:
+                    target_list[op.entity_id].update(op.payload)
             
             elif op.operation == Operation.REMOVE:
                 if isinstance(target_list, list):
                     state_dict[section][collection] = [item for item in target_list if item.get("id") != op.entity_id]
-                elif isinstance(target_list, dict):
-                    if op.entity_id in target_list:
-                        del target_list[op.entity_id]
+                elif isinstance(target_list, dict) and op.entity_id in target_list:
+                    del target_list[op.entity_id]
             
             # LINK, UNLINK, SPLIT, MERGE logic deferred
         

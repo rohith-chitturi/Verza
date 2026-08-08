@@ -38,12 +38,11 @@ class DeltaValidator:
     def _validate_semantic(self, delta: WorldStateDelta) -> None:
         # Example Semantic Checks
         for op in delta.operations:
-            if op.domain == "visual.scenes":
-                if op.operation == Operation.ADD or op.operation == Operation.UPDATE:
-                    start = op.payload.get("start_frame")
-                    end = op.payload.get("end_frame")
-                    if start is not None and end is not None and start >= end:
-                        raise ValidationError(f"Scene end_frame ({end}) must be greater than start_frame ({start}).")
+            if op.domain == "visual.scenes" and op.operation in [Operation.ADD, Operation.UPDATE]:
+                start = op.payload.get("start_frame")
+                end = op.payload.get("end_frame")
+                if start is not None and end is not None and start >= end:
+                    raise ValidationError(f"Scene end_frame ({end}) must be greater than start_frame ({start}).")
             
             # Confidence checks
             if op.confidence.confidence < 0.0 or op.confidence.confidence > 1.0:
