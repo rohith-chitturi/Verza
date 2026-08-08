@@ -1,4 +1,5 @@
 import uuid
+from typing import cast
 
 from pydantic import BaseModel, ConfigDict
 
@@ -45,7 +46,7 @@ class CharacterInterpreter(BaseInterpreter):
         parent_confidence: float = 1.0
     ) -> WorldStateDelta:
         
-        output: CharacterOutputSchema = vlm_provider.generate_structured(evidence, prompt)
+        output = cast(CharacterOutputSchema, vlm_provider.generate_structured(evidence, prompt))
         
         ops = []
         for char in output.characters:

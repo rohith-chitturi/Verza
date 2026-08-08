@@ -1,3 +1,5 @@
+from typing import cast
+
 from pydantic import BaseModel, ConfigDict
 
 from contracts.schemas.context import ExecutionContext
@@ -42,7 +44,7 @@ class ActivityInterpreter(BaseInterpreter):
         parent_confidence: float = 1.0
     ) -> WorldStateDelta:
         
-        output: ActivityOutputSchema = vlm_provider.generate_structured(evidence, prompt)
+        output = cast(ActivityOutputSchema, vlm_provider.generate_structured(evidence, prompt))
         
         ops = []
         for act in output.activities:

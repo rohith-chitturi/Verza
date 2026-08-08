@@ -1,3 +1,5 @@
+from typing import cast
+
 from pydantic import BaseModel, ConfigDict
 
 from contracts.schemas.context import ExecutionContext
@@ -39,7 +41,7 @@ class SceneInterpreter(BaseInterpreter):
     ) -> WorldStateDelta:
         
         # Invoke VLM
-        output: SceneOutputSchema = vlm_provider.generate_structured(evidence, prompt)
+        output = cast(SceneOutputSchema, vlm_provider.generate_structured(evidence, prompt))
         
         # Build Delta
         change = DeltaChange(
