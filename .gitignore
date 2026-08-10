@@ -76,3 +76,4 @@ storage/artifacts/*
 !storage/artifacts/.gitkeep
 storage/catalog/*
 !storage/catalog/.gitkeep
+!storage/catalog/*.py
