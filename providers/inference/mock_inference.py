@@ -26,7 +26,7 @@ class MockInferenceProvider(InferenceProvider):
     ) -> BaseModel:
         
         # Determine what to return based on the reasoner invoking it
-        if "intent" in prompt.name.lower():
+        if "intent" in prompt.id.lower():
             IntentOutputSchema = create_model(
                 'IntentOutputSchema',
                 intentions=(list[TemporalIntent], ...)
@@ -44,7 +44,7 @@ class MockInferenceProvider(InferenceProvider):
                 ]
             )
             
-        elif "relationship" in prompt.name.lower():
+        elif "relationship" in prompt.id.lower():
             RelationshipOutputSchema = create_model(
                 'RelationshipOutputSchema',
                 edges=(list[KnowledgeGraphEdge], ...)
@@ -63,7 +63,7 @@ class MockInferenceProvider(InferenceProvider):
                 ]
             )
             
-        elif "event" in prompt.name.lower():
+        elif "event" in prompt.id.lower():
             EventOutputSchema = create_model(
                 'EventOutputSchema',
                 events=(list[StructuredEvent], ...)

@@ -47,17 +47,20 @@ class ReasoningEngine:
         current_state = initial_state
         logger.info("Starting Reasoning Engine", trace_id=context.trace_id)
         
-        intent_prompt = self._prompt_registry.get("intent_reasoner")
-        relationship_prompt = self._prompt_registry.get("relationship_reasoner")
-        event_prompt = self._prompt_registry.get("event_reasoner")
-        
-        # We need mock prompts if they don't exist in registry yet
-        if not intent_prompt:
-            intent_prompt = PromptAsset(name="intent_reasoner", template="mock")
-        if not relationship_prompt:
-            relationship_prompt = PromptAsset(name="relationship_reasoner", template="mock")
-        if not event_prompt:
-            event_prompt = PromptAsset(name="event_reasoner", template="mock")
+        try:
+            intent_prompt = self._prompt_registry.get_prompt("intent_reasoner", "1.0")
+        except ValueError:
+            intent_prompt = PromptAsset(id="intent_reasoner", version="1.0", system_prompt="mock", user_prompt_template="mock", output_schema_version="1.0")
+            
+        try:
+            relationship_prompt = self._prompt_registry.get_prompt("relationship_reasoner", "1.0")
+        except ValueError:
+            relationship_prompt = PromptAsset(id="relationship_reasoner", version="1.0", system_prompt="mock", user_prompt_template="mock", output_schema_version="1.0")
+            
+        try:
+            event_prompt = self._prompt_registry.get_prompt("event_reasoner", "1.0")
+        except ValueError:
+            event_prompt = PromptAsset(id="event_reasoner", version="1.0", system_prompt="mock", user_prompt_template="mock", output_schema_version="1.0")
 
         # Step 1: Parallel Execution for Intent & Relationship
         with ThreadPoolExecutor(max_workers=2) as executor:
@@ -88,10 +91,10 @@ class ReasoningEngine:
         return current_state
 
     def _process_delta(self, delta, state: WorldState) -> WorldState:
-        # Validate schema
-        validation = self._validator.validate(delta)
-        if not validation.is_valid:
-            logger.error(f"Delta {delta.id} validation failed: {validation.errors}")
+        # Validate schema and semantics
+        is_valid = self._validator.validate(delta, state)
+        if not is_valid:
+            logger.error(f"Delta {delta.id} validation failed")
             return state
             
         # Check consistency
