@@ -10,7 +10,7 @@ from providers.inference.mock_inference import MockInferenceProvider
 def test_intent_reasoner_contract():
     state = WorldState()
     context = ExecutionContext(workflow_id="w-1", trace_id="t-1", correlation_id="c-1")
-    prompt = PromptAsset(name="intent_reasoner", template="mock")
+    prompt = PromptAsset(id="intent_reasoner", version="1.0", system_prompt="mock", user_prompt_template="mock", output_schema_version="1.0")
     inference = MockInferenceProvider()
     reasoner = IntentReasoner()
     
@@ -26,7 +26,7 @@ def test_intent_reasoner_contract():
 def test_relationship_reasoner_contract():
     state = WorldState()
     context = ExecutionContext(workflow_id="w-1", trace_id="t-1", correlation_id="c-1")
-    prompt = PromptAsset(name="relationship_reasoner", template="mock")
+    prompt = PromptAsset(id="relationship_reasoner", version="1.0", system_prompt="mock", user_prompt_template="mock", output_schema_version="1.0")
     inference = MockInferenceProvider()
     reasoner = RelationshipReasoner()
     
@@ -41,7 +41,7 @@ def test_relationship_reasoner_contract():
 def test_event_reasoner_contract():
     state = WorldState()
     context = ExecutionContext(workflow_id="w-1", trace_id="t-1", correlation_id="c-1")
-    prompt = PromptAsset(name="event_reasoner", template="mock")
+    prompt = PromptAsset(id="event_reasoner", version="1.0", system_prompt="mock", user_prompt_template="mock", output_schema_version="1.0")
     inference = MockInferenceProvider()
     reasoner = EventReasoner()
     

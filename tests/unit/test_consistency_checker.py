@@ -49,7 +49,7 @@ def test_consistency_checker_superseding():
     edge = KnowledgeGraphEdge(
         source="char-1",
         target="char-2",
-        relation="FRIENDS",
+        relation="FRIEND_OF",
         confidence=0.9
     )
     state.semantic.knowledge_graph.edges.append(edge)
@@ -64,7 +64,7 @@ def test_consistency_checker_superseding():
             DeltaChange(
                 operation=Operation.LINK,
                 domain="semantic.knowledge_graph.edges",
-                payload={"source": "char-1", "target": "char-2", "relation": "ENEMIES"},
+                payload={"source": "char-1", "target": "char-2", "relation": "HOSTILE_TOWARDS"},
                 confidence=ConfidenceScore(confidence=0.9)
             )
         ]
