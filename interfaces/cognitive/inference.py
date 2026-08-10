@@ -1,4 +1,5 @@
 from typing import Any
+
 from pydantic import BaseModel
 
 from contracts.schemas.context import ExecutionContext

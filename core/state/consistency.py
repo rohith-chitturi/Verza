@@ -1,6 +1,7 @@
 from enum import Enum
+
+from contracts.schemas.delta import Operation, WorldStateDelta
 from contracts.schemas.world import WorldState
-from contracts.schemas.delta import WorldStateDelta, Operation
 from core.telemetry.logging import get_logger
 
 logger = get_logger("core.state.consistency")
@@ -50,12 +51,12 @@ class ConsistencyChecker:
                             
                         # Example contradiction check:
                         if (existing_edge.source == source and 
-                            existing_edge.target == target):
+                            existing_edge.target == target and
+                            existing_edge.relation == "FRIEND_OF" and relation == "HOSTILE_TOWARDS"):
                             
-                            if existing_edge.relation == "FRIEND_OF" and relation == "HOSTILE_TOWARDS":
-                                # This might be superseding if time has passed, or conflicting
-                                logger.info(f"Potential conflict/superseding: {source} {relation} {target} vs {existing_edge.relation}")
-                                return ConsistencyResult(ConsistencyState.SUPERSEDING, "Relationship changed over time")
+                            # This might be superseding if time has passed, or conflicting
+                            logger.info(f"Potential conflict/superseding: {source} {relation} {target} vs {existing_edge.relation}")
+                            return ConsistencyResult(ConsistencyState.SUPERSEDING, "Relationship changed over time")
 
         # By default, assume valid
         return ConsistencyResult(ConsistencyState.VALID)

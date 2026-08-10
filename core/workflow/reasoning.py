@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+
 from contracts.schemas.context import ExecutionContext
 from contracts.schemas.prompt import PromptAsset
 from contracts.schemas.world import WorldState
@@ -10,7 +11,6 @@ from core.state.validator import DeltaValidator
 from core.telemetry.logging import get_logger
 from interfaces.cognitive.inference import InferenceProvider
 from interfaces.cognitive.reasoner import BaseReasoner
-
 
 logger = get_logger("core.workflow.reasoning")
 

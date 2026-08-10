@@ -131,9 +131,9 @@ class VerzaContainer(containers.DeclarativeContainer):
     mock_inference_provider = providers.Singleton(MockInferenceProvider)
     
     # Reasoners (M3.2)
+    from capabilities.cognitive.event_reasoner import EventReasoner
     from capabilities.cognitive.intent_reasoner import IntentReasoner
     from capabilities.cognitive.relationship_reasoner import RelationshipReasoner
-    from capabilities.cognitive.event_reasoner import EventReasoner
     
     intent_reasoner = providers.Factory(IntentReasoner)
     relationship_reasoner = providers.Factory(RelationshipReasoner)

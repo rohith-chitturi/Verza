@@ -1,10 +1,15 @@
 import uuid
 from typing import Any
+
 from pydantic import BaseModel, create_model
 
 from contracts.schemas.context import ExecutionContext
 from contracts.schemas.prompt import PromptAsset
-from contracts.schemas.world import KnowledgeGraphEdge, StructuredEvent, TemporalIntent, EvidenceType
+from contracts.schemas.world import (
+    KnowledgeGraphEdge,
+    StructuredEvent,
+    TemporalIntent,
+)
 from interfaces.cognitive.inference import InferenceProvider
 
 

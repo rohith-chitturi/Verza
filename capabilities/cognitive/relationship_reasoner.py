@@ -1,8 +1,11 @@
-import uuid
-from typing import Any
 
 from contracts.schemas.context import ExecutionContext
-from contracts.schemas.delta import WorldStateDelta, DeltaChange, Operation, ConfidenceScore
+from contracts.schemas.delta import (
+    ConfidenceScore,
+    DeltaChange,
+    Operation,
+    WorldStateDelta,
+)
 from contracts.schemas.prompt import PromptAsset
 from contracts.schemas.world import WorldState
 from interfaces.cognitive.inference import InferenceProvider
