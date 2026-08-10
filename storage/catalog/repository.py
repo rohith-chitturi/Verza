@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic, Any
+from typing import Any, Generic, TypeVar
+
 from contracts.schemas.snapshot import Snapshot
 
 T = TypeVar('T')
