@@ -1,5 +1,7 @@
-from typing import Any, Optional
+from typing import Any
+
 from pydantic import BaseModel, Field
+
 
 class RetryPolicy(BaseModel):
     max_attempts: int = 3
@@ -17,7 +19,7 @@ class Stage(BaseModel):
     provider_policy: ProviderPolicy
     depends_on: list[str] = Field(default_factory=list)
     retry_policy: RetryPolicy = Field(default_factory=RetryPolicy)
-    timeout: Optional[float] = None
+    timeout: float | None = None
     failure_policy: str = "abort" # e.g. "abort", "continue"
 
 class Workflow(BaseModel):
@@ -42,9 +44,9 @@ class StageRunMetadata(BaseModel):
     model_id: str
     model_version: str
     input_snapshot_id: str
-    output_snapshot_id: Optional[str] = None
+    output_snapshot_id: str | None = None
     world_state_version: str
     prompt_version: str
     configuration_hash: str
-    started_at: Optional[str] = None
-    completed_at: Optional[str] = None
+    started_at: str | None = None
+    completed_at: str | None = None

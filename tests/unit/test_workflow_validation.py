@@ -1,6 +1,8 @@
 import pytest
-from contracts.schemas.workflow import Workflow, Stage, ProviderPolicy
-from core.workflow.validation import WorkflowValidator, WorkflowValidationError
+
+from contracts.schemas.workflow import ProviderPolicy, Stage, Workflow
+from core.workflow.validation import WorkflowValidationError, WorkflowValidator
+
 
 @pytest.fixture
 def validator():

@@ -1,7 +1,10 @@
 import json
-import yaml
 from typing import Any
+
+import yaml
+
 from contracts.schemas.workflow import Workflow
+
 
 class WorkflowLoader:
     @staticmethod
@@ -17,7 +20,7 @@ class WorkflowLoader:
     def from_yaml(yaml_str: str) -> Workflow:
         data = yaml.safe_load(yaml_str)
         if not isinstance(data, dict):
-            raise ValueError("YAML must contain a dictionary")
+            raise TypeError("YAML must contain a dictionary")
         # In a real app we might have a top level "workflow:" key
         if "workflow" in data:
             data = data["workflow"]

@@ -1,5 +1,5 @@
-from typing import Any
 from contracts.schemas.workflow import Workflow
+
 
 class WorkflowValidationError(Exception):
     pass
