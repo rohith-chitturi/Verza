@@ -30,6 +30,8 @@ class DeltaChange(BaseModel):
     operation: Operation
     domain: str  # e.g., 'visual.characters', 'semantic.knowledge_graph'
     entity_id: str | None = None # The specific entity being modified
+    origin: str = "interpretation" # e.g., interpretation, inference, user
+    reasoner: str | None = None # e.g., relationship_reasoner
     payload: dict[str, Any] = Field(default_factory=dict)
     confidence: ConfidenceScore
     evidence: Evidence | None = None

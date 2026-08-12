@@ -1,8 +1,16 @@
 import uuid
 from datetime import datetime
+from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
+
+
+class EvidenceType(str, Enum):
+    OBSERVED = "OBSERVED"
+    INFERRED = "INFERRED"
+    DERIVED = "DERIVED"
+    USER_CONFIRMED = "USER_CONFIRMED"
 
 
 # ---------------------------------------------------------
@@ -119,12 +127,58 @@ class AudioContext(BaseModel):
 # ---------------------------------------------------------
 # Semantic & Others
 # ---------------------------------------------------------
+class KnowledgeGraphNode(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    id: str
+    type: str
+    properties: dict[str, Any] = Field(default_factory=dict)
+    confidence: float
+
+class KnowledgeGraphEdge(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    id: str = Field(default_factory=lambda: f"edge-{uuid.uuid4().hex[:8]}")
+    source: str
+    target: str
+    relation: str
+    properties: dict[str, Any] = Field(default_factory=dict)
+    valid_from: str | None = None
+    valid_until: str | None = None
+    confidence: float
+    evidence: Evidence | None = None
+
+class KnowledgeGraph(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    nodes: list[KnowledgeGraphNode] = Field(default_factory=list)
+    edges: list[KnowledgeGraphEdge] = Field(default_factory=list)
+
+class StructuredEvent(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    id: str = Field(default_factory=lambda: f"event-{uuid.uuid4().hex[:8]}")
+    type: str
+    start: str | None = None
+    end: str | None = None
+    participants: list[str] = Field(default_factory=list)
+    causes: list[str] = Field(default_factory=list)
+    consequences: list[str] = Field(default_factory=list)
+    evidence: Evidence | None = None
+    confidence: float
+    provenance: Provenance | None = None
+
+class TemporalIntent(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    actor: str
+    target: str | None = None
+    intent: str
+    start: str | None = None
+    end: str | None = None
+    confidence: float
+
 class SemanticContext(BaseModel):
     model_config = ConfigDict(frozen=True)
-    relationships: list[dict[str, Any]] = Field(default_factory=list)
-    knowledge_graph: dict[str, Any] = Field(default_factory=dict)
-    events: list[dict[str, Any]] = Field(default_factory=list)
-    intentions: list[dict[str, Any]] = Field(default_factory=list)
+    relationships: list[KnowledgeGraphEdge] = Field(default_factory=list)
+    knowledge_graph: KnowledgeGraph = Field(default_factory=KnowledgeGraph)
+    events: list[StructuredEvent] = Field(default_factory=list)
+    intentions: list[TemporalIntent] = Field(default_factory=list)
     scene_moods: dict[str, str] = Field(default_factory=dict)
 
 class TemporalContext(BaseModel):

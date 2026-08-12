@@ -1,5 +1,4 @@
 from dependency_injector import containers, providers
-from storage.catalog.repository import LocalSnapshotRepository
 
 from capabilities.media_understanding.audio import AudioSegmentationCapability
 from capabilities.media_understanding.document import DocumentUnderstandingCapability
@@ -12,6 +11,7 @@ from providers.media.ffmpeg.metadata_provider import FFmpegMetadataProvider
 from providers.speech.whisper.provider import WhisperRecognizer
 from providers.vision.easyocr.provider import EasyOCRProvider
 from providers.vision.pyscenedetect.provider import PySceneDetectProvider
+from storage.catalog.repository import LocalSnapshotRepository
 
 
 # Fake providers for M1
@@ -121,3 +121,35 @@ class VerzaContainer(containers.DeclarativeContainer):
     scene_interpreter = providers.Factory(SceneInterpreter)
     character_interpreter = providers.Factory(CharacterInterpreter)
     activity_interpreter = providers.Factory(ActivityInterpreter)
+
+    # State Consistency (M3.2)
+    from core.state.consistency import ConsistencyChecker
+    consistency_checker = providers.Singleton(ConsistencyChecker)
+    
+    # Inference Providers (M3.2)
+    from providers.inference.mock_inference import MockInferenceProvider
+    mock_inference_provider = providers.Singleton(MockInferenceProvider)
+    
+    # Reasoners (M3.2)
+    from capabilities.cognitive.event_reasoner import EventReasoner
+    from capabilities.cognitive.intent_reasoner import IntentReasoner
+    from capabilities.cognitive.relationship_reasoner import RelationshipReasoner
+    
+    intent_reasoner = providers.Factory(IntentReasoner)
+    relationship_reasoner = providers.Factory(RelationshipReasoner)
+    event_reasoner = providers.Factory(EventReasoner)
+    
+    # Reasoning Engine (M3.2)
+    from core.workflow.reasoning import ReasoningEngine
+    reasoning_engine = providers.Factory(
+        ReasoningEngine,
+        inference_provider=mock_inference_provider,
+        intent_reasoner=intent_reasoner,
+        relationship_reasoner=relationship_reasoner,
+        event_reasoner=event_reasoner,
+        validator=delta_validator,
+        consistency_checker=consistency_checker,
+        merger=delta_merger,
+        journal=delta_journal,
+        prompt_registry=prompt_registry
+    )
