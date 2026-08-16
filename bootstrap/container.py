@@ -16,10 +16,16 @@ from storage.catalog.repository import LocalSnapshotRepository
 
 # Fake providers for M1
 class FakeSceneAnalyzer:
+    provider_type = "mock"
+    def get_metadata(self): return {"name": "fake-scene", "type": "mock", "version": "1.0"}
     def analyze(self, *args, **kwargs): return "Scene analyzed"
 class FakeTranslator:
+    provider_type = "mock"
+    def get_metadata(self): return {"name": "fake-translator", "type": "mock", "version": "1.0"}
     def translate(self, *args, **kwargs): return "Translated text"
 class FakeTTS:
+    provider_type = "mock"
+    def get_metadata(self): return {"name": "fake-tts", "type": "mock", "version": "1.0"}
     def synthesize(self, *args, **kwargs): return "Audio generated"
 
 # Fake capabilities for M1

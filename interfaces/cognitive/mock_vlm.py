@@ -12,6 +12,15 @@ class MockVLMProvider(VLMProvider):
     A mock implementation of VLMProvider that returns statically defined 
     structured responses based on the prompt's expected schema.
     """
+    provider_type = "mock"
+    
+    def get_metadata(self) -> dict:
+        return {
+            "name": "mock-vlm",
+            "type": "mock",
+            "version": "1.0"
+        }
+
     def generate_structured(self, evidence: Evidence, prompt: PromptAsset) -> BaseModel:
         logger.info(f"Mocking VLM response for prompt version {prompt.version}")
         

@@ -18,6 +18,15 @@ class MockInferenceProvider(InferenceProvider):
     Mock inference provider that returns deterministic structured output
     based on the prompt's target model.
     """
+    provider_type = "mock"
+    
+    def get_metadata(self) -> dict[str, Any]:
+        return {
+            "name": "mock-inference",
+            "type": "mock",
+            "version": "1.0"
+        }
+
     def infer_structured(
         self,
         context_data: dict[str, Any],
