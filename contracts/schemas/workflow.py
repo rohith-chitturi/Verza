@@ -9,9 +9,11 @@ class RetryPolicy(BaseModel):
     max_backoff: float = 60.0
     retryable_errors: list[str] = Field(default_factory=list)
 
+
 class ProviderPolicy(BaseModel):
     primary: str
     fallback: list[str] = Field(default_factory=list)
+
 
 class Stage(BaseModel):
     id: str
@@ -20,7 +22,8 @@ class Stage(BaseModel):
     depends_on: list[str] = Field(default_factory=list)
     retry_policy: RetryPolicy = Field(default_factory=RetryPolicy)
     timeout: float | None = None
-    failure_policy: str = "abort" # e.g. "abort", "continue"
+    failure_policy: str = "abort"  # e.g. "abort", "continue"
+
 
 class Workflow(BaseModel):
     id: str
@@ -29,6 +32,7 @@ class Workflow(BaseModel):
     inputs: dict[str, Any] = Field(default_factory=dict)
     stages: list[Stage] = Field(default_factory=list)
     policies: dict[str, Any] = Field(default_factory=dict)
+
 
 # Execution Metadata Models (for tracking and replayability)
 class StageRunMetadata(BaseModel):

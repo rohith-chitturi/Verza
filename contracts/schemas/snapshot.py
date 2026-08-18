@@ -9,6 +9,7 @@ class Snapshot(BaseModel):
     """
     Strongly typed Snapshot model for pipeline reproducibility.
     """
+
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     workflow_id: str
     job_id: str

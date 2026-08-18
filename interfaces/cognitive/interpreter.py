@@ -12,17 +12,17 @@ class BaseInterpreter(abc.ABC):
     Base contract for cognitive interpretation layers.
     Interpreters do not mutate the WorldState directly; they return a WorldStateDelta.
     """
-    
+
     @property
     @abc.abstractmethod
     def name(self) -> str:
         """Name of the interpreter"""
-        
+
     @property
     @abc.abstractmethod
     def consumes(self) -> list[str]:
         """List of domains this interpreter reads from."""
-        
+
     @property
     @abc.abstractmethod
     def produces(self) -> list[str]:
@@ -30,12 +30,12 @@ class BaseInterpreter(abc.ABC):
 
     @abc.abstractmethod
     def interpret(
-        self, 
-        world_state: WorldState, 
-        evidence: Evidence, 
-        prompt: PromptAsset, 
+        self,
+        world_state: WorldState,
+        evidence: Evidence,
+        prompt: PromptAsset,
         context: ExecutionContext,
-        vlm_provider: VLMProvider
+        vlm_provider: VLMProvider,
     ) -> WorldStateDelta:
         """
         Executes interpretation logic over the evidence using the VLM,

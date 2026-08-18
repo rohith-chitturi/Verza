@@ -1,0 +1,14 @@
+from enum import Enum
+
+
+class ExecutionState(str, Enum):
+    PENDING = "PENDING"
+    QUEUED = "QUEUED"
+    RUNNING = "RUNNING"
+    CHECKPOINTED = "CHECKPOINTED"
+    PAUSED = "PAUSED"
+    RETRYING = "RETRYING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    CANCELLED = "CANCELLED"
+    ABORTED = "ABORTED"
