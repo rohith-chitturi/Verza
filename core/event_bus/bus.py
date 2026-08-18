@@ -8,6 +8,7 @@ class EventBus(ABC):
     """
     Abstract Interface for the Event Bus.
     """
+
     @abstractmethod
     def subscribe(self, event_type: str, handler: Callable[[BaseEvent], None]) -> None:
         pass
@@ -16,10 +17,12 @@ class EventBus(ABC):
     def publish(self, event: BaseEvent) -> None:
         pass
 
+
 class InMemoryEventBus(EventBus):
     """
     In-memory implementation of the Event Bus.
     """
+
     def __init__(self):
         self._subscribers: dict[str, list[Callable[[BaseEvent], None]]] = {}
 

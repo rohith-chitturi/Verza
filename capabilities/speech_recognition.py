@@ -11,20 +11,28 @@ from storage.catalog.repository import SnapshotRepository
 
 logger = get_logger("capabilities.speech_recognition")
 
+
 class SpeechRecognitionCapability:
-    def __init__(self, provider: SpeechRecognizer, event_bus: EventBus, snapshot_repo: SnapshotRepository):
+    def __init__(
+        self,
+        provider: SpeechRecognizer,
+        event_bus: EventBus,
+        snapshot_repo: SnapshotRepository,
+    ):
         self._provider = provider
         self._event_bus = event_bus
         self._snapshot_repo = snapshot_repo
 
-    def execute(self, audio_path: str, context: AIContext, trace_id: str) -> SpeechRecognitionResult:
+    def execute(
+        self, audio_path: str, context: AIContext, trace_id: str
+    ) -> SpeechRecognitionResult:
         start_time = time.time()
         logger.info("stage_executing", stage="SpeechRecognition", trace_id=trace_id)
-        
+
         result = self._provider.recognize(audio_path, context)
-        
+
         duration_ms = int((time.time() - start_time) * 1000)
-        
+
         # Save snapshot
         snapshot = Snapshot(
             workflow_id=context.workflow_id,
@@ -35,18 +43,20 @@ class SpeechRecognitionCapability:
             context=context.model_dump(),
             provider="whisper",
             model="large-v3",
-            version="1.0"
+            version="1.0",
         )
         self._snapshot_repo.save(snapshot)
-        
+
         # Publish typed event
-        self._event_bus.publish(StageFinished(
-            workflow_id=context.workflow_id,
-            trace_id=trace_id,
-            correlation_id="corr-001",
-            stage_name="SpeechRecognition",
-            duration_ms=duration_ms,
-            success=True
-        ))
-        
+        self._event_bus.publish(
+            StageFinished(
+                workflow_id=context.workflow_id,
+                trace_id=trace_id,
+                correlation_id="corr-001",
+                stage_name="SpeechRecognition",
+                duration_ms=duration_ms,
+                success=True,
+            )
+        )
+
         return result

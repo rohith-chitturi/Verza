@@ -12,6 +12,7 @@ class VLMProvider(Protocol):
     Enforces that providers return structured Pydantic models based on the prompt's expected schema,
     rather than returning free text.
     """
+
     def generate_structured(self, evidence: Evidence, prompt: PromptAsset) -> BaseModel:
         """
         Processes visual/audio evidence through a VLM and returns a Pydantic object

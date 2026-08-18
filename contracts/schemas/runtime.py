@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class ExecutionState(str, Enum):
     PENDING = "PENDING"
     QUEUED = "QUEUED"
