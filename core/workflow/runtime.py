@@ -1,6 +1,5 @@
 import threading
 import uuid
-from typing import Any
 
 from contracts.schemas.runtime import ExecutionState
 from contracts.schemas.workflow import Workflow
@@ -59,7 +58,7 @@ class WorkflowRuntime:
         
         try:
             waves = self._dag_resolver.resolve(workflow)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(f"Failed to resolve DAG: {e}")
             self._run_repo.update_run_status(run_id, ExecutionState.FAILED)
             return
@@ -140,7 +139,7 @@ class WorkflowRuntime:
                             self._run_repo.update_stage_status(stage_run_id, ExecutionState.COMPLETED)
                             logger.info(f"Stage {stage_id} completed successfully via {provider}.")
                             success = True
-                        except Exception as e:
+                        except Exception as e:  # noqa: BLE001
                             logger.warning(f"Stage {stage_id} attempt {attempts} failed with provider {provider}: {e}")
                             if attempts < max_attempts:
                                 self._run_repo.update_stage_status(stage_run_id, ExecutionState.FAILED)

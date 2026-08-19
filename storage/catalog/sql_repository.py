@@ -1,12 +1,21 @@
-from abc import ABC, abstractmethod
-from typing import Any, Sequence
+from abc import ABC
+from collections.abc import Sequence
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
-from contracts.schemas.runtime import ExecutionState, VALID_TRANSITIONS, IllegalStateTransitionError
+from contracts.schemas.runtime import (
+    VALID_TRANSITIONS,
+    ExecutionState,
+    IllegalStateTransitionError,
+)
 from contracts.schemas.workflow import Workflow
-from storage.models.runtime import StageRunModel, TaskAttemptModel, WorkflowDefinitionModel, WorkflowRunModel, WorkflowVersionModel
+from storage.models.runtime import (
+    StageRunModel,
+    WorkflowDefinitionModel,
+    WorkflowRunModel,
+    WorkflowVersionModel,
+)
+
 
 class BaseSqlRepository(ABC):
     def __init__(self, session_factory):

@@ -6,13 +6,13 @@ from capabilities.media_understanding.metadata import MetadataExtractionCapabili
 from capabilities.media_understanding.shot_detector import ShotDetectionCapability
 from capabilities.speech_recognition import SpeechRecognitionCapability
 from core.event_bus.bus import InMemoryEventBus
+from core.registry.capability import CapabilityRegistry
 from providers.media.ffmpeg.audio_provider import AudioSegmentationProvider
 from providers.media.ffmpeg.metadata_provider import FFmpegMetadataProvider
 from providers.speech.whisper.provider import WhisperRecognizer
 from providers.vision.easyocr.provider import EasyOCRProvider
 from providers.vision.pyscenedetect.provider import PySceneDetectProvider
 from storage.catalog.repository import LocalSnapshotRepository
-from core.registry.capability import CapabilityRegistry
 
 
 # Fake providers for M1

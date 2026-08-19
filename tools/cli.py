@@ -1,11 +1,12 @@
-import typer
-import yaml
 from pathlib import Path
 
+import typer
+import yaml
+
+from bootstrap.container import VerzaContainer
 from contracts.schemas.workflow import Workflow
 from core.workflow.runtime import WorkflowRuntime
 from storage.catalog.sql_repository import RunSqlRepository
-from bootstrap.container import VerzaContainer
 
 app = typer.Typer(help="Verza Platform CLI")
 
@@ -14,8 +15,8 @@ container = VerzaContainer()
 
 @app.command()
 def run(
-    workflow_path: Path = typer.Argument(..., help="Path to workflow YAML"),
-    resume_from: str = typer.Option(None, "--resume-from", help="Run ID to resume from")
+    workflow_path: Path = typer.Argument(..., help="Path to workflow YAML"),  # noqa: B008
+    resume_from: str = typer.Option(None, "--resume-from", help="Run ID to resume from"),
 ):
     """Executes a workflow definition."""
     if not workflow_path.exists():
@@ -30,7 +31,6 @@ def run(
     
     # Normally we'd fetch this from container
     # runtime = container.workflow_runtime()
-    from storage.catalog.sql_repository import BaseSqlRepository
     # Dummy session factory for prototype
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
@@ -57,7 +57,7 @@ def status(run_id: str):
     """Gets the status of a workflow run."""
     typer.secho(f"Fetching status for {run_id}...", fg=typer.colors.BLUE)
     # repo.get_run(run_id)
-    typer.secho(f"Status: RUNNING", fg=typer.colors.GREEN)
+    typer.secho("Status: RUNNING", fg=typer.colors.GREEN)
 
 if __name__ == "__main__":
     app()

@@ -3,11 +3,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from contracts.schemas.runtime import ExecutionState, IllegalStateTransitionError
-from contracts.schemas.workflow import Workflow, Stage, ProviderPolicy, RetryPolicy
+from contracts.schemas.workflow import ProviderPolicy, RetryPolicy, Stage, Workflow
 from core.registry.capability import CapabilityRegistry
 from core.workflow.runtime import WorkflowRuntime
 from storage.catalog.sql_repository import RunSqlRepository
 from storage.models.runtime import Base
+
+
+class MockCapabilityError(Exception):
+    pass
 
 class MockCapability:
     def __init__(self, should_fail=False, fail_times=0):
@@ -20,7 +24,7 @@ class MockCapability:
         if self.should_fail or self.fail_times > 0:
             if self.fail_times > 0:
                 self.fail_times -= 1
-            raise Exception("Capability failed")
+            raise MockCapabilityError("Capability failed")
         return "Success"
 
 @pytest.fixture
