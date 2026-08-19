@@ -12,6 +12,7 @@ from providers.speech.whisper.provider import WhisperRecognizer
 from providers.vision.easyocr.provider import EasyOCRProvider
 from providers.vision.pyscenedetect.provider import PySceneDetectProvider
 from storage.catalog.repository import LocalSnapshotRepository
+from core.registry.capability import CapabilityRegistry
 
 
 # Fake providers for M1
@@ -190,4 +191,23 @@ class VerzaContainer(containers.DeclarativeContainer):
         merger=delta_merger,
         journal=delta_journal,
         prompt_registry=prompt_registry,
+    )
+
+    # Capability Registry (M4)
+    capability_registry = providers.Singleton(
+        CapabilityRegistry,
+        resolvers=providers.Dict({
+            "speech_recognition": speech_recognition_capability.provider,
+            "scene_analysis": scene_analysis_capability.provider,
+            "translation": translation_capability.provider,
+            "tts": tts_capability.provider,
+            "metadata_extraction": metadata_cap.provider,
+            "shot_detection": shot_cap.provider,
+            "document_understanding": doc_cap.provider,
+            "audio_segmentation": audio_cap.provider,
+            "scene_interpretation": scene_interpreter.provider,
+            "character_interpretation": character_interpreter.provider,
+            "activity_interpretation": activity_interpreter.provider,
+            "reasoning": reasoning_engine.provider
+        })
     )
