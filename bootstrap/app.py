@@ -2,6 +2,7 @@ from fastapi import FastAPI, Response
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
 from bootstrap.container import VerzaContainer
+from control_plane.api.routers import workflow
 from core.telemetry.logging import configure_logging, get_logger
 
 # Configure logging before app starts
@@ -11,6 +12,8 @@ logger = get_logger("bootstrap.app")
 app = FastAPI(title="Verza Platform API")
 container = VerzaContainer()
 app.container = container  # type: ignore
+
+app.include_router(workflow.router)
 
 
 @app.get("/health")
