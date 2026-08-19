@@ -1,9 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter
 
 from contracts.schemas.runtime import ExecutionState
-from contracts.schemas.workflow import WorkflowDefinition
-from core.workflow.runtime import WorkflowRuntime
-from storage.catalog.sql_repository import RunSqlRepository, WorkflowSqlRepository
+from contracts.schemas.workflow import Workflow
 
 # We would normally use Dependency Injector's FastAPI integration here, 
 # but for the prototype we'll keep it simple or assume it's injected.
@@ -11,7 +9,7 @@ from storage.catalog.sql_repository import RunSqlRepository, WorkflowSqlReposito
 router = APIRouter(prefix="/api/v1")
 
 @router.post("/workflows")
-def create_workflow(definition: WorkflowDefinition):
+def create_workflow(definition: Workflow):
     # repo.save_definition(definition)
     return {"status": "ok", "workflow": definition.name}
 

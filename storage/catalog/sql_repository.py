@@ -1,19 +1,28 @@
-from abc import ABC, abstractmethod
-from typing import Any, Sequence
+from abc import ABC
+from collections.abc import Sequence
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
-from contracts.schemas.runtime import ExecutionState
-from contracts.schemas.workflow import WorkflowDefinition
-from storage.models.runtime import StageRunModel, TaskAttemptModel, WorkflowDefinitionModel, WorkflowRunModel, WorkflowVersionModel
+from contracts.schemas.runtime import (
+    VALID_TRANSITIONS,
+    ExecutionState,
+    IllegalStateTransitionError,
+)
+from contracts.schemas.workflow import Workflow
+from storage.models.runtime import (
+    StageRunModel,
+    WorkflowDefinitionModel,
+    WorkflowRunModel,
+    WorkflowVersionModel,
+)
+
 
 class BaseSqlRepository(ABC):
     def __init__(self, session_factory):
         self._session_factory = session_factory
 
 class WorkflowSqlRepository(BaseSqlRepository):
-    def save_definition(self, definition: WorkflowDefinition) -> None:
+    def save_definition(self, definition: Workflow) -> None:
         with self._session_factory() as session:
             # Upsert definition
             db_def = session.execute(
@@ -68,6 +77,9 @@ class RunSqlRepository(BaseSqlRepository):
         with self._session_factory() as session:
             run = session.execute(select(WorkflowRunModel).where(WorkflowRunModel.id == run_id)).scalar_one_or_none()
             if run:
+                current_state = ExecutionState(run.status)
+                if status not in VALID_TRANSITIONS[current_state] and status != current_state:
+                    raise IllegalStateTransitionError(f"Cannot transition run from {current_state} to {status}")
                 run.status = status.value
                 session.commit()
 
@@ -95,5 +107,8 @@ class RunSqlRepository(BaseSqlRepository):
         with self._session_factory() as session:
             stage_run = session.execute(select(StageRunModel).where(StageRunModel.id == stage_run_id)).scalar_one_or_none()
             if stage_run:
+                current_state = ExecutionState(stage_run.status)
+                if status not in VALID_TRANSITIONS[current_state] and status != current_state:
+                    raise IllegalStateTransitionError(f"Cannot transition stage from {current_state} to {status}")
                 stage_run.status = status.value
                 session.commit()
