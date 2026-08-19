@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from contracts.schemas.runtime import ExecutionState
-from contracts.schemas.workflow import WorkflowDefinition
+from contracts.schemas.workflow import Workflow
 from core.workflow.runtime import WorkflowRuntime
 from storage.catalog.sql_repository import RunSqlRepository, WorkflowSqlRepository
 
@@ -11,7 +11,7 @@ from storage.catalog.sql_repository import RunSqlRepository, WorkflowSqlReposito
 router = APIRouter(prefix="/api/v1")
 
 @router.post("/workflows")
-def create_workflow(definition: WorkflowDefinition):
+def create_workflow(definition: Workflow):
     # repo.save_definition(definition)
     return {"status": "ok", "workflow": definition.name}
 

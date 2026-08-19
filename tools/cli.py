@@ -2,7 +2,7 @@ import typer
 import yaml
 from pathlib import Path
 
-from contracts.schemas.workflow import WorkflowDefinition
+from contracts.schemas.workflow import Workflow
 from core.workflow.runtime import WorkflowRuntime
 from storage.catalog.sql_repository import RunSqlRepository
 from bootstrap.container import VerzaContainer
@@ -24,7 +24,7 @@ def run(
         
     with open(workflow_path, "r") as f:
         data = yaml.safe_load(f)
-        definition = WorkflowDefinition(**data)
+        definition = Workflow(**data)
         
     typer.secho(f"Loaded workflow: {definition.name} (v{definition.version})", fg=typer.colors.GREEN)
     

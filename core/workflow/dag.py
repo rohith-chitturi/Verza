@@ -1,12 +1,12 @@
 from typing import Any
 
-from contracts.schemas.workflow import WorkflowDefinition
+from contracts.schemas.workflow import Workflow
 
 class DAGResolver:
     """
-    Resolves the execution order of a DAG defined in a WorkflowDefinition.
+    Resolves the execution order of a DAG defined in a Workflow.
     """
-    def resolve(self, workflow: WorkflowDefinition) -> list[list[str]]:
+    def resolve(self, workflow: Workflow) -> list[list[str]]:
         """
         Returns a list of stages grouped by execution wave (topological sort).
         Each inner list contains stage IDs that can be executed in parallel.
