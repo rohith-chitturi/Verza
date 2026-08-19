@@ -105,9 +105,9 @@ class WorkflowRuntime:
                     logger.info(f"Resume: Skipping already completed stage {stage_id}")
                     continue
 
-                stage_run_id = existing_stage_runs.get(stage_id, None)
-                if stage_run_id:
-                    stage_run_id = stage_run_id.id
+                existing_stage_run = existing_stage_runs.get(stage_id, None)
+                if existing_stage_run:
+                    stage_run_id = existing_stage_run.id
                     self._run_repo.update_stage_status(stage_run_id, ExecutionState.RUNNING)
                 else:
                     stage_run_id = f"SR-{uuid.uuid4().hex[:8].upper()}"
