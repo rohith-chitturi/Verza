@@ -1,0 +1,25 @@
+name: cognitive_memory_synthesis
+version: "1.0"
+stages:
+  - id: perception
+    capability: scene_analysis
+
+  - id: interpretation
+    capability: scene_interpretation
+    depends_on: [perception]
+
+  - id: reasoning
+    capability: reasoning
+    depends_on: [interpretation]
+
+  - id: memory_indexing
+    capability: memory_indexing
+    depends_on: [reasoning]
+
+  - id: retrieval
+    capability: semantic_retrieval
+    depends_on: [memory_indexing]
+
+  - id: synthesis
+    capability: synthesis
+    depends_on: [retrieval]
