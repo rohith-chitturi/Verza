@@ -10,13 +10,13 @@ class BaseReasoner:
     Unlike Interpreters that look at raw media evidence, Reasoners
     infer meaning strictly from the current structured WorldState.
     """
-    
+
     def reason(
         self,
         world_state: WorldState,
         prompt: PromptAsset,
         context: ExecutionContext,
         inference_provider: InferenceProvider,
-        parent_confidence: float = 1.0
+        parent_confidence: float = 1.0,
     ) -> WorldStateDelta:
         raise NotImplementedError

@@ -18,18 +18,23 @@ class MockInferenceProvider(InferenceProvider):
     Mock inference provider that returns deterministic structured output
     based on the prompt's target model.
     """
+
+    provider_type = "mock"
+
+    def get_metadata(self) -> dict[str, Any]:
+        return {"name": "mock-inference", "type": "mock", "version": "1.0"}
+
     def infer_structured(
         self,
         context_data: dict[str, Any],
         prompt: PromptAsset,
-        execution_context: ExecutionContext | None = None
+        execution_context: ExecutionContext | None = None,
     ) -> BaseModel:
-        
+
         # Determine what to return based on the reasoner invoking it
         if "intent" in prompt.id.lower():
             IntentOutputSchema = create_model(
-                'IntentOutputSchema',
-                intentions=(list[TemporalIntent], ...)
+                "IntentOutputSchema", intentions=(list[TemporalIntent], ...)
             )
             return IntentOutputSchema(
                 intentions=[
@@ -39,15 +44,14 @@ class MockInferenceProvider(InferenceProvider):
                         intent="CONFRONT",
                         start="00:01",
                         end="00:05",
-                        confidence=0.8
+                        confidence=0.8,
                     )
                 ]
             )
-            
+
         elif "relationship" in prompt.id.lower():
             RelationshipOutputSchema = create_model(
-                'RelationshipOutputSchema',
-                edges=(list[KnowledgeGraphEdge], ...)
+                "RelationshipOutputSchema", edges=(list[KnowledgeGraphEdge], ...)
             )
             return RelationshipOutputSchema(
                 edges=[
@@ -58,15 +62,14 @@ class MockInferenceProvider(InferenceProvider):
                         relation="HOSTILE_TOWARDS",
                         valid_from="scene-1",
                         valid_until="scene-5",
-                        confidence=0.9
+                        confidence=0.9,
                     )
                 ]
             )
-            
+
         elif "event" in prompt.id.lower():
             EventOutputSchema = create_model(
-                'EventOutputSchema',
-                events=(list[StructuredEvent], ...)
+                "EventOutputSchema", events=(list[StructuredEvent], ...)
             )
             return EventOutputSchema(
                 events=[
@@ -78,11 +81,11 @@ class MockInferenceProvider(InferenceProvider):
                         participants=["character-001", "character-002"],
                         causes=["argument"],
                         consequences=["character-002 leaves"],
-                        confidence=0.88
+                        confidence=0.88,
                     )
                 ]
             )
-            
+
         # Fallback
-        FallbackSchema = create_model('FallbackSchema', output=(str, ...))
+        FallbackSchema = create_model("FallbackSchema", output=(str, ...))
         return FallbackSchema(output="Mock inference")

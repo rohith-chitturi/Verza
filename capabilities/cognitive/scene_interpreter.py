@@ -21,28 +21,34 @@ class SceneOutputSchema(BaseModel):
     mood: str
     confidence: float
 
+
 class SceneInterpreter(BaseInterpreter):
     @property
-    def name(self) -> str: return "SceneInterpreter"
-    
+    def name(self) -> str:
+        return "SceneInterpreter"
+
     @property
-    def consumes(self) -> list[str]: return ["media", "visual.frames"]
-    
+    def consumes(self) -> list[str]:
+        return ["media", "visual.frames"]
+
     @property
-    def produces(self) -> list[str]: return ["visual.scenes"]
+    def produces(self) -> list[str]:
+        return ["visual.scenes"]
 
     def interpret(
-        self, 
-        world_state: WorldState, 
-        evidence: Evidence, 
-        prompt: PromptAsset, 
+        self,
+        world_state: WorldState,
+        evidence: Evidence,
+        prompt: PromptAsset,
         context: ExecutionContext,
-        vlm_provider: VLMProvider
+        vlm_provider: VLMProvider,
     ) -> WorldStateDelta:
-        
+
         # Invoke VLM
-        output = cast(SceneOutputSchema, vlm_provider.generate_structured(evidence, prompt))
-        
+        output = cast(
+            SceneOutputSchema, vlm_provider.generate_structured(evidence, prompt)
+        )
+
         # Build Delta
         change = DeltaChange(
             operation=Operation.ADD,
@@ -50,20 +56,19 @@ class SceneInterpreter(BaseInterpreter):
             payload={
                 "summary": output.summary,
                 "mood": output.mood,
-                "evidence": evidence.model_dump()
+                "evidence": evidence.model_dump(),
             },
             confidence=ConfidenceScore(
-                confidence=output.confidence,
-                reason="VLM Scene Analysis"
+                confidence=output.confidence, reason="VLM Scene Analysis"
             ),
-            evidence=evidence
+            evidence=evidence,
         )
-        
+
         return WorldStateDelta(
             capability=self.name,
             provider="VLM",
             version="1.0.0",
             trace_id=context.trace_id,
-            parent_world_state_id="todo-hash", # Hashing logic deferred
-            operations=[change]
+            parent_world_state_id="todo-hash",  # Hashing logic deferred
+            operations=[change],
         )
