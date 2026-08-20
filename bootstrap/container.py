@@ -193,6 +193,42 @@ class VerzaContainer(containers.DeclarativeContainer):
         prompt_registry=prompt_registry,
     )
 
+    # Memory & Synthesis (M3.3)
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+
+    from capabilities.cognitive.memory_indexer import MemoryIndexerCapability
+    from capabilities.cognitive.semantic_retrieval import SemanticRetrievalCapability
+    from capabilities.cognitive.synthesis import SynthesisCapability
+    from providers.memory.embedding.sentence_transformer import (
+        SentenceTransformerProvider,
+    )
+    from storage.catalog.memory_repository import PostgresMemoryRepository
+
+    # Default to local PG for development
+    db_engine = providers.Singleton(create_engine, "postgresql+psycopg://verza:verza_password@localhost:5432/verza_db")
+    db_session_factory = providers.Singleton(sessionmaker, bind=db_engine)
+
+    memory_repository = providers.Singleton(PostgresMemoryRepository, session_factory=db_session_factory)
+    embedding_provider = providers.Singleton(SentenceTransformerProvider, model_name="all-MiniLM-L6-v2")
+
+    memory_indexer = providers.Factory(
+        MemoryIndexerCapability,
+        repository=memory_repository,
+        embedding_provider=embedding_provider,
+    )
+    
+    semantic_retrieval = providers.Factory(
+        SemanticRetrievalCapability,
+        repository=memory_repository,
+        embedding_provider=embedding_provider,
+    )
+    
+    synthesis = providers.Factory(
+        SynthesisCapability,
+        vlm_provider=mock_vlm_provider,
+    )
+
     # Capability Registry (M4)
     capability_registry = providers.Singleton(
         CapabilityRegistry,
@@ -208,6 +244,9 @@ class VerzaContainer(containers.DeclarativeContainer):
             "scene_interpretation": scene_interpreter.provider,
             "character_interpretation": character_interpreter.provider,
             "activity_interpretation": activity_interpreter.provider,
-            "reasoning": reasoning_engine.provider
+            "reasoning": reasoning_engine.provider,
+            "memory_indexing": memory_indexer.provider,
+            "semantic_retrieval": semantic_retrieval.provider,
+            "synthesis": synthesis.provider
         })
     )

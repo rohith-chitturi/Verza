@@ -2,6 +2,8 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from contracts.schemas.memory import MemoryProvenance
+
 
 class ExecutionResult(BaseModel):
     success: bool
@@ -33,3 +35,14 @@ class EvaluationResult(ExecutionResult):
     score: float
     metrics: dict[str, float]
     passed: bool
+
+
+class SynthesisResult(ExecutionResult):
+    narrative: str
+    key_events: list[str] = Field(default_factory=list)
+    timeline: list[dict[str, Any]] = Field(default_factory=list)
+    memory_citations: list[str] = Field(default_factory=list)
+    evidence: list[dict[str, Any]] = Field(default_factory=list)
+    confidence: float
+    provenance: MemoryProvenance | None = None
+
