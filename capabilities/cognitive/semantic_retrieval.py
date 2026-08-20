@@ -1,12 +1,11 @@
 from typing import Any
 
 from contracts.schemas.memory import RetrievalQuery, RetrievedMemory
-from core.registry.capability import BaseCapability
 from interfaces.memory.embedding import EmbeddingInterface
 from storage.catalog.memory_repository import PostgresMemoryRepository
 
 
-class SemanticRetrievalCapability(BaseCapability):
+class SemanticRetrievalCapability:
     """
     Executes a RetrievalQuery via HybridRetriever and builds a deterministic ContextWindow.
     """

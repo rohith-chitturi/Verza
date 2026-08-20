@@ -1,5 +1,10 @@
 from dependency_injector import containers, providers
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
+from capabilities.cognitive.memory_indexer import MemoryIndexerCapability
+from capabilities.cognitive.semantic_retrieval import SemanticRetrievalCapability
+from capabilities.cognitive.synthesis import SynthesisCapability
 from capabilities.media_understanding.audio import AudioSegmentationCapability
 from capabilities.media_understanding.document import DocumentUnderstandingCapability
 from capabilities.media_understanding.metadata import MetadataExtractionCapability
@@ -9,9 +14,11 @@ from core.event_bus.bus import InMemoryEventBus
 from core.registry.capability import CapabilityRegistry
 from providers.media.ffmpeg.audio_provider import AudioSegmentationProvider
 from providers.media.ffmpeg.metadata_provider import FFmpegMetadataProvider
+from providers.memory.embedding.sentence_transformer import SentenceTransformerProvider
 from providers.speech.whisper.provider import WhisperRecognizer
 from providers.vision.easyocr.provider import EasyOCRProvider
 from providers.vision.pyscenedetect.provider import PySceneDetectProvider
+from storage.catalog.memory_repository import PostgresMemoryRepository
 from storage.catalog.repository import LocalSnapshotRepository
 
 
@@ -194,17 +201,6 @@ class VerzaContainer(containers.DeclarativeContainer):
     )
 
     # Memory & Synthesis (M3.3)
-    from sqlalchemy import create_engine
-    from sqlalchemy.orm import sessionmaker
-
-    from capabilities.cognitive.memory_indexer import MemoryIndexerCapability
-    from capabilities.cognitive.semantic_retrieval import SemanticRetrievalCapability
-    from capabilities.cognitive.synthesis import SynthesisCapability
-    from providers.memory.embedding.sentence_transformer import (
-        SentenceTransformerProvider,
-    )
-    from storage.catalog.memory_repository import PostgresMemoryRepository
-
     # Default to local PG for development
     db_engine = providers.Singleton(create_engine, "postgresql+psycopg://verza:verza_password@localhost:5432/verza_db")
     db_session_factory = providers.Singleton(sessionmaker, bind=db_engine)

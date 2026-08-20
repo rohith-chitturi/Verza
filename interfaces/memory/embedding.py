@@ -1,9 +1,7 @@
-from abc import abstractmethod
-
-from interfaces.base import BaseInterface
+from abc import ABC, abstractmethod
 
 
-class EmbeddingInterface(BaseInterface):
+class EmbeddingInterface(ABC):
     """
     Interface for embedding models used in the Memory Indexer.
     Converts text content into vector embeddings for similarity search.

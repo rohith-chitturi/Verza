@@ -7,12 +7,11 @@ from contracts.schemas.memory import (
     SemanticMemory,
 )
 from contracts.schemas.world import WorldState
-from core.registry.capability import BaseCapability
 from interfaces.memory.embedding import EmbeddingInterface
 from storage.catalog.memory_repository import PostgresMemoryRepository
 
 
-class MemoryIndexerCapability(BaseCapability):
+class MemoryIndexerCapability:
     """
     Parses a WorldState and extracts/indexes Episodic and Semantic memories into the MemoryRepository.
     """

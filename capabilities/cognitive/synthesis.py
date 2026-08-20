@@ -3,11 +3,10 @@ from typing import Any
 from contracts.schemas.memory import RetrievedMemory
 from contracts.schemas.result import SynthesisResult
 from contracts.schemas.world import WorldState
-from core.registry.capability import BaseCapability
 from interfaces.cognitive.vlm_provider import VLMProvider
 
 
-class SynthesisCapability(BaseCapability):
+class SynthesisCapability:
     """
     SynthesisEngine: Passes deterministic ContextWindow to LLM and returns probabilistic SynthesisResult.
     """
