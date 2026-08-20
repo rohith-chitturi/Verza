@@ -1,6 +1,8 @@
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import JSON, Column, Float, ForeignKey, Integer, String
+from sqlalchemy import JSON, Column, Float, Integer, String
+
 from storage.models.runtime import Base
+
 
 class MemoryProvenanceMixin:
     tenant_id = Column(String, nullable=True)

@@ -24,7 +24,7 @@ class SentenceTransformerProvider(EmbeddingInterface):
     @property
     def dimension(self) -> int:
         # all-MiniLM-L6-v2 produces 384-dimensional embeddings
-        return self._model.get_sentence_embedding_dimension()
+        return self._model.get_sentence_embedding_dimension() or 384
     
     @property
     def model_name(self) -> str:

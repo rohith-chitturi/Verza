@@ -19,7 +19,7 @@ import sys
 sys.path.insert(0, os.path.abspath("."))
 
 from storage.models.runtime import Base
-from storage.models.memory import EpisodicMemoryModel, SemanticMemoryModel
+
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

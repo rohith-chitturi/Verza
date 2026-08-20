@@ -1,7 +1,5 @@
-from typing import Sequence
 
-from sqlalchemy import select, and_, or_, Float, cast
-from sqlalchemy.orm import Session
+from sqlalchemy import select
 
 from contracts.schemas.memory import (
     EpisodicMemory,
@@ -146,17 +144,17 @@ class PostgresMemoryRepository:
 
             # 2. Retrieve Semantic Memories
             if not query.memory_types or "semantic" in query.memory_types:
-                stmt = select(SemanticMemoryModel).where(
+                sem_stmt = select(SemanticMemoryModel).where(
                     SemanticMemoryModel.lifecycle == MemoryLifecycle.ACTIVE.value
                 )
                 if query.min_confidence > 0:
-                    stmt = stmt.where(SemanticMemoryModel.confidence >= query.min_confidence)
+                    sem_stmt = sem_stmt.where(SemanticMemoryModel.confidence >= query.min_confidence)
                     
                 if query_embedding is not None:
-                    stmt = stmt.order_by(SemanticMemoryModel.embedding.cosine_distance(query_embedding))
-                    stmt = stmt.limit(query.top_k)
+                    sem_stmt = sem_stmt.order_by(SemanticMemoryModel.embedding.cosine_distance(query_embedding))
+                    sem_stmt = sem_stmt.limit(query.top_k)
 
-                semantic_models = session.execute(stmt).scalars().all()
+                semantic_models = session.execute(sem_stmt).scalars().all()
                 for model in semantic_models:
                     if query.entity_ids and not any(e in (model.entities or []) for e in query.entity_ids):
                         continue
@@ -174,7 +172,7 @@ class PostgresMemoryRepository:
                         model=model.model,
                         confidence=model.confidence
                     )
-                    fragment = SemanticMemory(
+                    sem_fragment = SemanticMemory(
                         id=model.id,
                         content=model.content,
                         lifecycle=MemoryLifecycle(model.lifecycle),
@@ -188,7 +186,7 @@ class PostgresMemoryRepository:
                     
                     similarity = 1.0
                     results.append(RetrievedMemory(
-                        memory=fragment,
+                        memory=sem_fragment,
                         similarity=similarity,
                         temporal_score=1.0,
                         confidence_score=model.confidence,

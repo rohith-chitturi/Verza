@@ -3,11 +3,10 @@ from typing import Any
 from contracts.schemas.memory import RetrievedMemory
 from contracts.schemas.result import SynthesisResult
 from contracts.schemas.world import WorldState
-from core.registry.capability import BaseCapability
 from interfaces.cognitive.vlm_provider import VLMProvider
 
 
-class SynthesisCapability(BaseCapability):
+class SynthesisCapability:
     """
     SynthesisEngine: Passes deterministic ContextWindow to LLM and returns probabilistic SynthesisResult.
     """
@@ -45,8 +44,9 @@ class SynthesisCapability(BaseCapability):
             # We assume vlm_provider has a way to answer prompts. 
             # The interface only has analyze_frame/analyze_video currently, so we might need a general text prompt method.
             # Using a mock response for now to satisfy the pipeline architecture
+            _ = prompt  # satisfy linter for now
             narrative = f"Based on retrieved memory, {len(retrieved_memories)} events were found relevant to '{query_text}'."
-        except Exception:
+        except ValueError:
             narrative = "Synthesis failed."
 
         return SynthesisResult(
