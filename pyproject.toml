@@ -26,6 +26,11 @@ dependencies = [
 [project.scripts]
 verza = "tools.cli:app"
 
+[project.optional-dependencies]
+speech = [
+    "faster-whisper>=1.0.0"
+]
+
 [tool.uv]
 managed = true
 
