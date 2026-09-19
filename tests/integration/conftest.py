@@ -1,10 +1,12 @@
 import os
+
 import pytest
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import OperationalError
+from sqlalchemy.orm import sessionmaker
 
 from storage.models.runtime import Base
+
 
 def get_test_db_url():
     return os.environ.get(
@@ -18,7 +20,7 @@ def engine():
     eng = create_engine(db_url)
     try:
         # Test connection
-        with eng.connect() as conn:
+        with eng.connect():
             pass
     except OperationalError as e:
         pytest.fail(f"ENVIRONMENT DEPENDENCY FAILURE: PostgreSQL is unavailable at {db_url}. Please ensure docker-compose up -d postgres is running. Details: {e}")

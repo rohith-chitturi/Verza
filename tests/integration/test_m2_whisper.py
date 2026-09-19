@@ -1,4 +1,5 @@
 import os
+
 import pytest
 
 from bootstrap.container import VerzaContainer
@@ -6,7 +7,7 @@ from contracts.schemas.context import AIContext
 
 # Ensure the test fails fast if faster-whisper is not installed.
 try:
-    import faster_whisper
+    import faster_whisper  # type: ignore # noqa: F401
     HAS_WHISPER = True
 except ImportError:
     HAS_WHISPER = False

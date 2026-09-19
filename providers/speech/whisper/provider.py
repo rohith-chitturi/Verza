@@ -21,7 +21,7 @@ class WhisperRecognizer:
         
         # Enforce fail-fast dependency check per M2 Real Media Understanding architecture
         try:
-            import faster_whisper
+            import faster_whisper  # type: ignore # noqa: F401
         except ImportError:
             raise RuntimeError(
                 "ENVIRONMENT DEPENDENCY FAILURE: faster-whisper is not installed. "
@@ -72,7 +72,7 @@ class WhisperRecognizer:
 
     def health(self) -> bool:
         try:
-            import faster_whisper
+            import faster_whisper  # noqa: F401
             return True
         except ImportError:
             return False

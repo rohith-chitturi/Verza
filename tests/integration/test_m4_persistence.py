@@ -1,9 +1,10 @@
 import pytest
+
 from contracts.schemas.runtime import ExecutionState
-from contracts.schemas.workflow import ProviderPolicy, RetryPolicy, Stage, Workflow
-from core.workflow.runtime import WorkflowRuntime
+from contracts.schemas.workflow import ProviderPolicy, Stage, Workflow
 from core.registry.capability import CapabilityRegistry
-from storage.catalog.sql_repository import RunSqlRepository
+from core.workflow.runtime import WorkflowRuntime
+
 
 # We need a mocked registry just for testing the M4 engine's persistence logic independent of M2.
 class PersistenceMockCapability:
@@ -49,7 +50,7 @@ def test_transaction_rollback_on_failure(runtime, repo, workflow_repo, session_f
     runtime._execute_run(run_id, workflow)
     
     # Open a fresh session to read back
-    with session_factory() as session:
+    with session_factory():
         run = repo.get_run(run_id)
         assert run is not None
         assert run.status == ExecutionState.FAILED.value

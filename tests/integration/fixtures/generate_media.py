@@ -1,5 +1,6 @@
-import wave
 import struct
+import wave
+
 
 def generate_test_wav(filepath: str):
     """Generates a 1-second 440Hz sine wave valid .wav file"""
