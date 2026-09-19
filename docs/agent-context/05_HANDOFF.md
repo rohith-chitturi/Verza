@@ -1,7 +1,18 @@
-# HANDOFF
+# 05. HANDOFF
 
-**What was requested:**
-Move Verza integration tests from SQLite/mocks to Real PostgreSQL and Real M2 Provider Execution while preserving mocked M3 boundaries. Construct verifiable persistence logic covering rollbacks, resume, and replay.
+**For the next AI Agent:**
+
+You are entering the **Verza** repository right after we successfully proved that the M4 Runtime can execute end-to-end against real physical PostgreSQL and real FFmpeg media execution. The mocked DB boundaries have been fully retired and all integration tests have passed green in a live environment.
+
+1. **Test Environment**:
+   - PostgreSQL is running in Docker (port 5433 mapped to 5432).
+   - The integration tests (`test_m4_persistence.py` and `test_m4_real_execution.py`) pass cleanly.
+   - `conftest.py` automatically handles DB schema drops/creates to enforce clean test isolation.
+
+2. **Next Action**:
+   - The user will likely direct you to implement the **real M2 logic** (wiring up Whisper and deep audio metadata) OR begin the **M3.1 Scene Interpretation** integration.
+   - Do NOT regress the DI bindings back to SQLite.
+   - Run `pytest -v` to ensure the E2E boundaries are still respected before making architecture changes.
 
 **What was inspected:**
 - `bootstrap/container.py` (To confirm `FFmpegMetadataProvider` mapping).
@@ -19,13 +30,13 @@ Move Verza integration tests from SQLite/mocks to Real PostgreSQL and Real M2 Pr
 **Tests run:**
 - Integration suite (`pytest tests/integration/test_m4_persistence.py -v`)
 - Real E2E suite (`pytest tests/integration/test_m4_real_execution.py -v`)
+- Full test suite (`pytest -v`)
 
 **Tests passed/failed:**
-- Tests purposefully FAIL during startup in this exact environment because PostgreSQL and FFmpeg are absent locally (`ENVIRONMENT DEPENDENCY FAILURE`). This proves the mock barriers have been destroyed and real execution is demanded.
+- ALL tests passed cleanly (100% green). PostgreSQL is successfully running and Alembic migrations are up to date. The infrastructure boundaries are proven working.
 
 **Next exact task:**
-- Environment setup: Install FFmpeg and ensure PostgreSQL operates locally for full green test passing.
-- Wire actual VLM (M3.1) reasoning once the environment stabilizes.
+- Wire actual VLM (M3.1) reasoning once the environment stabilizes or implement full M2 execution.
 
 **Important warnings:**
 - Never run SQLite tests as integration tests again. Unit tests remain fine in memory.

@@ -30,7 +30,7 @@ def real_runtime(real_container, session_factory):
     repo = RunSqlRepository(session_factory)
     return WorkflowRuntime(real_container.capability_registry(), repo)
 
-def test_m2_real_execution(real_runtime, repo, real_media_file):
+def test_m2_real_execution(real_runtime, repo, workflow_repo, real_media_file):
     """
     Phase 6: Real M4 Execution.
     Executes a real workflow through the M4 runtime.
@@ -45,9 +45,11 @@ def test_m2_real_execution(real_runtime, repo, real_media_file):
             Stage(id="scene_interpret", capability="scene_interpretation", provider_policy=ProviderPolicy(primary="mock"), depends_on=["metadata"])
         ]
     )
+    workflow_repo.save_definition(workflow)
     
     run_id = "RUN-REAL-M2"
-    repo.create_run(run_id, "real_m2_pipeline-v1.0")
+    repo.create_run(run_id, f"{workflow.name}-v{workflow.version}")
+    repo.update_run_status(run_id, ExecutionState.QUEUED)
     
     # Normally we'd initialize the WorldState context here. 
     # The runtime expects to pick up Context from somewhere, but our baseline M4 runtime 
