@@ -49,13 +49,10 @@ class FFmpegMetadataProvider:
             logger.info("metadata_extracted_real", path=media_path)
 
         except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            logger.warning(
-                "ffprobe_failed_using_fallback", error=str(e), path=media_path
+            logger.error(
+                "ffprobe_failed", error=str(e), path=media_path
             )
-            duration = 120.0
-            framerate = 24.0
-            resolution = "1920x1080"
-            codecs = {"video": "h264", "audio": "aac"}
+            raise RuntimeError(f"ENVIRONMENT DEPENDENCY FAILURE: FFprobe is unavailable or failed: {e}")
 
         provenance = Provenance(provider="ffmpeg", version=self.__version__)
 

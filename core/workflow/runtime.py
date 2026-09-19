@@ -135,7 +135,13 @@ class WorkflowRuntime:
                         try:
                             # In real system, we'd pass the provider to the capability execution context
                             capability = self._registry.get(stage_def.capability)
-                            capability.execute()
+                            
+                            # In a real system, the media_id would be retrieved from the Run Parameters
+                            from contracts.schemas.context import AIContext
+                            context = AIContext(media_id="tests/integration/fixtures/test_media.wav", workflow_id=workflow.id, language="en")
+                            
+                            capability.execute(context=context, trace_id=stage_run_id)
+                            
                             self._run_repo.update_stage_status(stage_run_id, ExecutionState.COMPLETED)
                             logger.info(f"Stage {stage_id} completed successfully via {provider}.")
                             success = True
