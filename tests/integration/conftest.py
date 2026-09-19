@@ -20,8 +20,9 @@ def engine():
     eng = create_engine(db_url)
     try:
         # Test connection
-        with eng.connect():
-            pass
+        with eng.begin() as conn:
+            from sqlalchemy import text
+            conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
     except OperationalError as e:
         pytest.fail(f"ENVIRONMENT DEPENDENCY FAILURE: PostgreSQL is unavailable at {db_url}. Please ensure docker-compose up -d postgres is running. Details: {e}")
     
