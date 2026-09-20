@@ -2,7 +2,13 @@
 
 **For the next AI Agent:**
 
-You are entering the **Verza** repository right after we successfully proved that the M4 Runtime can execute end-to-end against real physical PostgreSQL and real FFmpeg media execution, and we have just completed M2 Phase 1: Real Whisper Speech Recognition. The mocked DB boundaries have been fully retired and all integration tests have passed green in a live environment, including local Whisper inference.
+You are entering the **Verza** repository right after we successfully proved that the M4 Runtime can execute end-to-end against real physical PostgreSQL.
+
+## Completed Work (Latest to Oldest)
+- **M2 Phase 2 (EasyOCR)**: Implemented real vision processing using `easyocr` and `opencv-python-headless`. Wrote physical fixture generation and real DI-bound integration tests.
+- **CI Stabilization**: Ensured `conftest.py` accurately bootstraps `pgvector` inside GitHub Actions.
+- **M2 Phase 1 (Whisper)**: Implemented real speech recognition with `faster-whisper` and `.wav` fixtures.
+- **M4 Real Workflow Execution**: Replaced mocked state with real PostgreSQL `WorldState` persistence in a live environment, including local Whisper inference.
 
 1. **Test Environment**:
    - PostgreSQL is running in Docker (port 5433 mapped to 5432).
