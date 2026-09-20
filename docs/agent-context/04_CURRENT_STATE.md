@@ -1,8 +1,8 @@
 # 04. CURRENT STATE
 
 ## CURRENT MILESTONE:
-- **Current Phase:** M2: Media Understanding (Partially Real - Whisper, EasyOCR, PySceneDetect, Audio Segmentation verified)
-- **Current Branch:** `feature/m2-audio-segmentation`
+- **Current Phase:** M2: Media Understanding (Partially Real - Whisper, EasyOCR, PySceneDetect, Audio Segmentation, YOLO Object Detection verified)
+- **Current Branch:** `feature/m2-object-detection`
 - **Active Focus:** Implementing real provider logic behind capability boundaries, using DI and physical fixtures.
 
 ## LAST VERIFIED:
@@ -32,6 +32,10 @@ VERIFIED
    - Uses zero ML dependencies, parsing raw FFmpeg subprocess `stderr` for highly deterministic boundary mapping.
    - Generated perfect 3.0s `.wav` (sine/silence/sine) fixture using Python's `wave`.
    - Populates `ACTIVE_AUDIO` into the `speech_tracks` array in the `AudioContext` contract.
+- **M2 Phase 5 (Object Detection):** Replaced mock `MockObjectDetectionCapability` with real `YOLOObjectDetector`.
+   - Reused DI-configured model provisioning to ensure local `yolov8n.pt` resolves reliably without CI network fetches.
+   - Extracted bounding boxes and classes mapped robustly to the `DetectedObject` schema.
+   - Preserved frame-level temporal fidelity without introducing tracking logic.
 
 ## CURRENT LIMITATION:
 - M2 remains partially implemented (FFmpeg and Whisper paths are verified, but other providers like EasyOCR are mocked or incomplete).
