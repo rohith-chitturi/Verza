@@ -38,10 +38,11 @@ def generate_object_fixture(output_dir: str):
     if not os.path.exists(mp4_path):
         print(f"Generating 30-frame MP4 at {mp4_path}...")
         img = cv2.imread(img_path)
+        assert img is not None, f"Failed to load image at {img_path}"
         h, w, _ = img.shape
         
         # mp4v codec is standard for deterministic cv2 video writing
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # type: ignore
         fps = 30.0
         out = cv2.VideoWriter(mp4_path, fourcc, fps, (w, h))
         
