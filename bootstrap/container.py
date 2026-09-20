@@ -8,6 +8,7 @@ from capabilities.cognitive.synthesis import SynthesisCapability
 from capabilities.media_understanding.audio import AudioSegmentationCapability
 from capabilities.media_understanding.document import DocumentUnderstandingCapability
 from capabilities.media_understanding.metadata import MetadataExtractionCapability
+from capabilities.media_understanding.object_detector import ObjectDetectionCapability
 from capabilities.media_understanding.shot_detector import ShotDetectionCapability
 from capabilities.speech_recognition import SpeechRecognitionCapability
 from core.event_bus.bus import InMemoryEventBus
@@ -18,6 +19,7 @@ from providers.memory.embedding.sentence_transformer import SentenceTransformerP
 from providers.speech.whisper.provider import WhisperRecognizer
 from providers.vision.easyocr.provider import EasyOCRProvider
 from providers.vision.pyscenedetect.provider import PySceneDetectProvider
+from providers.vision.yolo.provider import YOLOObjectDetector
 from storage.catalog.memory_repository import PostgresMemoryRepository
 from storage.catalog.repository import LocalSnapshotRepository
 
@@ -74,6 +76,8 @@ class VerzaContainer(containers.DeclarativeContainer):
     """
     IoC container of Verza core services and providers.
     """
+    config = providers.Configuration()
+    config.vision.yolo_model.from_env("VERZA_YOLO_MODEL", "yolov8n.pt")
 
     # Core Infrastructure
     event_bus = providers.Singleton(InMemoryEventBus)
@@ -90,6 +94,7 @@ class VerzaContainer(containers.DeclarativeContainer):
     pyscenedetect_provider = providers.Singleton(PySceneDetectProvider)
     easyocr_provider = providers.Singleton(EasyOCRProvider)
     ffmpeg_audio_provider = providers.Singleton(AudioSegmentationProvider)
+    yolo_provider = providers.Singleton(YOLOObjectDetector, model_path=config.vision.yolo_model)
 
     # Capabilities (M1)
     speech_recognition_capability = providers.Factory(
@@ -138,6 +143,10 @@ class VerzaContainer(containers.DeclarativeContainer):
 
     audio_cap = providers.Factory(
         AudioSegmentationCapability, provider=ffmpeg_audio_provider
+    )
+
+    object_cap = providers.Factory(
+        ObjectDetectionCapability, provider=yolo_provider
     )
 
     # Core State & Prompts (M3.1)
@@ -237,6 +246,7 @@ class VerzaContainer(containers.DeclarativeContainer):
             "shot_detection": shot_cap.provider,
             "document_understanding": doc_cap.provider,
             "audio_segmentation": audio_cap.provider,
+            "object_detection": object_cap.provider,
             "scene_interpretation": scene_interpreter.provider,
             "character_interpretation": character_interpreter.provider,
             "activity_interpretation": activity_interpreter.provider,
