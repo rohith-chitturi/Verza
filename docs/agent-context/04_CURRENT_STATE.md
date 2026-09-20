@@ -1,8 +1,8 @@
 # 04. CURRENT STATE
 
 ## CURRENT MILESTONE:
-- **Current Phase:** M2: Media Understanding (Partially Real - Whisper, EasyOCR, PySceneDetect, Audio Segmentation, YOLO Object Detection verified)
-- **Current Branch:** `feature/m2-object-detection`
+- **Current Phase:** M2: Media Understanding (Partially Real - Whisper, EasyOCR, PySceneDetect, Audio Segmentation, YOLO Object Detection, IoU Object Tracking verified)
+- **Current Branch:** `feature/m2-object-tracking`
 - **Active Focus:** Implementing real provider logic behind capability boundaries, using DI and physical fixtures.
 
 ## LAST VERIFIED:
@@ -36,6 +36,10 @@ VERIFIED
    - Reused DI-configured model provisioning to ensure local `yolov8n.pt` resolves reliably without CI network fetches.
    - Extracted bounding boxes and classes mapped robustly to the `DetectedObject` schema.
    - Preserved frame-level temporal fidelity without introducing tracking logic.
+- **M2 Phase 6 (Object Tracking):** Replaced missing logic with a pure-Python `IoUObjectTracker` tied to `ObjectTrackingCapability`.
+   - Established `TrackedObject` and `TrackedAppearance` in the `VisualContext` of the `WorldState`.
+   - Designed a class-aware, greedy bounding-box Intersection-over-Union mapping without relying on secondary ML packages (avoiding `numpy` conflicts!).
+   - Strictly decoupled from media streams—processes the output array from Phase 5 dynamically in memory.
 
 ## CURRENT LIMITATION:
 - M2 remains partially implemented (FFmpeg and Whisper paths are verified, but other providers like EasyOCR are mocked or incomplete).

@@ -9,6 +9,7 @@ from capabilities.media_understanding.audio import AudioSegmentationCapability
 from capabilities.media_understanding.document import DocumentUnderstandingCapability
 from capabilities.media_understanding.metadata import MetadataExtractionCapability
 from capabilities.media_understanding.object_detector import ObjectDetectionCapability
+from capabilities.media_understanding.object_tracker import ObjectTrackingCapability
 from capabilities.media_understanding.shot_detector import ShotDetectionCapability
 from capabilities.speech_recognition import SpeechRecognitionCapability
 from core.event_bus.bus import InMemoryEventBus
@@ -19,6 +20,7 @@ from providers.memory.embedding.sentence_transformer import SentenceTransformerP
 from providers.speech.whisper.provider import WhisperRecognizer
 from providers.vision.easyocr.provider import EasyOCRProvider
 from providers.vision.pyscenedetect.provider import PySceneDetectProvider
+from providers.vision.tracking.iou_tracker import IoUObjectTracker
 from providers.vision.yolo.provider import YOLOObjectDetector
 from storage.catalog.memory_repository import PostgresMemoryRepository
 from storage.catalog.repository import LocalSnapshotRepository
@@ -78,6 +80,7 @@ class VerzaContainer(containers.DeclarativeContainer):
     """
     config = providers.Configuration()
     config.vision.yolo_model.from_env("VERZA_YOLO_MODEL", "yolov8n.pt")
+    config.vision.iou_threshold.from_env("VERZA_TRACKER_IOU_THRESHOLD", 0.30)
 
     # Core Infrastructure
     event_bus = providers.Singleton(InMemoryEventBus)
@@ -95,6 +98,7 @@ class VerzaContainer(containers.DeclarativeContainer):
     easyocr_provider = providers.Singleton(EasyOCRProvider)
     ffmpeg_audio_provider = providers.Singleton(AudioSegmentationProvider)
     yolo_provider = providers.Singleton(YOLOObjectDetector, model_path=config.vision.yolo_model)
+    iou_tracker_provider = providers.Singleton(IoUObjectTracker, iou_threshold=config.vision.iou_threshold.as_float())
 
     # Capabilities (M1)
     speech_recognition_capability = providers.Factory(
@@ -147,6 +151,10 @@ class VerzaContainer(containers.DeclarativeContainer):
 
     object_cap = providers.Factory(
         ObjectDetectionCapability, provider=yolo_provider
+    )
+
+    object_tracking_cap = providers.Factory(
+        ObjectTrackingCapability, provider=iou_tracker_provider
     )
 
     # Core State & Prompts (M3.1)
@@ -247,6 +255,7 @@ class VerzaContainer(containers.DeclarativeContainer):
             "document_understanding": doc_cap.provider,
             "audio_segmentation": audio_cap.provider,
             "object_detection": object_cap.provider,
+            "object_tracking": object_tracking_cap.provider,
             "scene_interpretation": scene_interpreter.provider,
             "character_interpretation": character_interpreter.provider,
             "activity_interpretation": activity_interpreter.provider,

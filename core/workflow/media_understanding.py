@@ -7,6 +7,7 @@ from capabilities.media_understanding.document import DocumentUnderstandingCapab
 # Import the actual capabilities
 from capabilities.media_understanding.metadata import MetadataExtractionCapability
 from capabilities.media_understanding.object_detector import ObjectDetectionCapability
+from capabilities.media_understanding.object_tracker import ObjectTrackingCapability
 from capabilities.media_understanding.shot_detector import ShotDetectionCapability
 from contracts.schemas.context import AIContext
 from core.telemetry.logging import get_logger
@@ -104,6 +105,7 @@ class MediaUnderstandingEngine:
         doc_cap: DocumentUnderstandingCapability,
         audio_cap: AudioSegmentationCapability,
         object_cap: ObjectDetectionCapability,
+        object_tracking_cap: ObjectTrackingCapability,
     ):
         self.pipeline = [
             metadata_cap,  # 1. Video Metadata
@@ -112,6 +114,7 @@ class MediaUnderstandingEngine:
             MockCharacterTrackingCapability(),  # 4. Characters
             MockFaceTrackingCapability(),  # 5. Faces
             object_cap,  # 6. Objects
+            object_tracking_cap,  # 6.5 Object Tracking
             doc_cap,  # 7. Document Understanding (OCR)
             MockActivitiesCapability(),  # 8. Activities
             audio_cap,  # 9. Audio Segmentation
@@ -145,9 +148,10 @@ def run_m2_engine(
     doc_cap: DocumentUnderstandingCapability = Provide["doc_cap"],
     audio_cap: AudioSegmentationCapability = Provide["audio_cap"],
     object_cap: ObjectDetectionCapability = Provide["object_cap"],
+    object_tracking_cap: ObjectTrackingCapability = Provide["object_tracking_cap"],
 ):
     context = AIContext(media_id="sample_media.mp4", workflow_id="w-123", language="en")
-    engine = MediaUnderstandingEngine(metadata_cap, shot_cap, doc_cap, audio_cap, object_cap)
+    engine = MediaUnderstandingEngine(metadata_cap, shot_cap, doc_cap, audio_cap, object_cap, object_tracking_cap)
 
     final_context = engine.execute(context)
 

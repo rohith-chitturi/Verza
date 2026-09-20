@@ -5,6 +5,7 @@
 You are entering the **Verza** repository right after we successfully proved that the M4 Runtime can execute end-to-end against real physical PostgreSQL.
 
 ## Completed Work (Latest to Oldest)
+- **M2 Phase 6 (Object Tracking)**: Authored a mathematically pure, zero-dependency `IoUObjectTracker` provider to bind `DetectedObject` streams into persistent `TrackedObject` entities. Added full DI support, strictly verified against YOLO streams offline.
 - **M2 Phase 5 (Object Detection)**: Integrated YOLO through `ultralytics`. Designed a committed MP4 test fixture and explicitly provisioned the `yolov8n.pt` model to prevent CI network dependencies. Stored results via the `ObjectDetectionProvider` directly into `VisualContext.objects`.
 - **M2 Phase 4 (Audio Segmentation)**: Implemented real audio segmentation via FFmpeg's `silencedetect`. Built mathematical 3.0s `.wav` fixture (active/silence/active) to rigorously assert the extracted `AudioContext`.
 - **M2 Phase 3 (Shot Detection)**: Realized the PySceneDetect integration. Built mathematically deterministic `.mp4` generation via OpenCV to guarantee robust scene detection boundaries.
