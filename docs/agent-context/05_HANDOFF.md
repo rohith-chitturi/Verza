@@ -5,11 +5,12 @@
 You are entering the **Verza** repository right after we successfully proved that the M4 Runtime can execute end-to-end against real physical PostgreSQL.
 
 ## Completed Work (Latest to Oldest)
+- **M2 Phase 4 (Audio Segmentation)**: Implemented real audio segmentation via FFmpeg's `silencedetect`. Built mathematical 3.0s `.wav` fixture (active/silence/active) to rigorously assert the extracted `AudioContext`.
 - **M2 Phase 3 (Shot Detection)**: Realized the PySceneDetect integration. Built mathematically deterministic `.mp4` generation via OpenCV to guarantee robust scene detection boundaries.
 - **M2 Phase 2 (EasyOCR)**: Implemented real vision processing using `easyocr` and `opencv-python-headless`. Wrote physical fixture generation and real DI-bound integration tests.
 - **CI Stabilization**: Ensured `conftest.py` accurately bootstraps `pgvector` inside GitHub Actions.
 - **M2 Phase 1 (Whisper)**: Implemented real speech recognition with `faster-whisper` and `.wav` fixtures.
-- **M4 Real Workflow Execution**: Replaced mocked state with real PostgreSQL `WorldState` persistence in a live environment, including local Whisper inference.
+- **M4 Real Workflow Execution**: Replaced mocked state with real PostgreSQL `WorldState` persistence in a live environment.
 
 1. **Test Environment**:
    - PostgreSQL is running in Docker (port 5433 mapped to 5432).
