@@ -94,6 +94,15 @@ class DocumentUnderstanding(BaseModel):
     certainty: Certainty | None = None
 
 
+class DetectedObject(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    class_name: str
+    confidence: float
+    bounding_box: list[float] = Field(default_factory=list)  # [x1, y1, x2, y2]
+    frame: int
+    timestamp_s: float
+
+
 class VisualContext(BaseModel):
     model_config = ConfigDict(frozen=True)
     sequences: list[dict[str, Any]] = Field(default_factory=list)
@@ -102,7 +111,7 @@ class VisualContext(BaseModel):
     frames: list[dict[str, Any]] = Field(default_factory=list)
     characters: list[Character] = Field(default_factory=list)
     faces: list[dict[str, Any]] = Field(default_factory=list)
-    objects: list[dict[str, Any]] = Field(default_factory=list)
+    objects: list[DetectedObject] = Field(default_factory=list)
     activities: list[Activity] = Field(default_factory=list)
     motion: Motion | None = None
     camera: Camera | None = None
