@@ -1,8 +1,8 @@
 # 04. CURRENT STATE
 
 ## CURRENT MILESTONE:
-- **Current Phase:** M2: Media Understanding (Partially Real - Whisper, EasyOCR, PySceneDetect verified)
-- **Current Branch:** `feature/m2-shot-detection`
+- **Current Phase:** M2: Media Understanding (Partially Real - Whisper, EasyOCR, PySceneDetect, Audio Segmentation verified)
+- **Current Branch:** `feature/m2-audio-segmentation`
 - **Active Focus:** Implementing real provider logic behind capability boundaries, using DI and physical fixtures.
 
 ## LAST VERIFIED:
@@ -28,6 +28,10 @@ VERIFIED
    - Fail-fast environment isolation preventing integration leakage.
    - Generates and verifies mathematically deterministic `.mp4` video cut points.
    - Direct translation of `scenedetect` structures into the internal shot interface contract.
+- **M2 Phase 4 (Audio Segmentation):** Replaced mock `AudioSegmentationProvider` with real `ffmpeg silencedetect` execution.
+   - Uses zero ML dependencies, parsing raw FFmpeg subprocess `stderr` for highly deterministic boundary mapping.
+   - Generated perfect 3.0s `.wav` (sine/silence/sine) fixture using Python's `wave`.
+   - Populates `ACTIVE_AUDIO` into the `speech_tracks` array in the `AudioContext` contract.
 
 ## CURRENT LIMITATION:
 - M2 remains partially implemented (FFmpeg and Whisper paths are verified, but other providers like EasyOCR are mocked or incomplete).
