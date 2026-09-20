@@ -5,6 +5,7 @@
 You are entering the **Verza** repository right after we successfully proved that the M4 Runtime can execute end-to-end against real physical PostgreSQL.
 
 ## Completed Work (Latest to Oldest)
+- **M2 Phase 3 (Shot Detection)**: Realized the PySceneDetect integration. Built mathematically deterministic `.mp4` generation via OpenCV to guarantee robust scene detection boundaries.
 - **M2 Phase 2 (EasyOCR)**: Implemented real vision processing using `easyocr` and `opencv-python-headless`. Wrote physical fixture generation and real DI-bound integration tests.
 - **CI Stabilization**: Ensured `conftest.py` accurately bootstraps `pgvector` inside GitHub Actions.
 - **M2 Phase 1 (Whisper)**: Implemented real speech recognition with `faster-whisper` and `.wav` fixtures.
