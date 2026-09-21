@@ -1,3 +1,5 @@
+from pydantic import BaseModel
+
 from contracts.schemas.context import ExecutionContext
 from contracts.schemas.delta import (
     ConfidenceScore,
@@ -6,9 +8,14 @@ from contracts.schemas.delta import (
     WorldStateDelta,
 )
 from contracts.schemas.prompt import PromptAsset
-from contracts.schemas.world import WorldState
+from contracts.schemas.world import TemporalIntent, WorldState
+from core.workflow.reasoning_context import ReasoningContextBuilder
 from interfaces.cognitive.inference import InferenceProvider
 from interfaces.cognitive.reasoner import BaseReasoner
+
+
+class IntentOutputSchema(BaseModel):
+    intentions: list[TemporalIntent]
 
 
 class IntentReasoner(BaseReasoner):
@@ -26,15 +33,14 @@ class IntentReasoner(BaseReasoner):
     ) -> WorldStateDelta:
 
         # Prepare context from world state
-        context_data = {
-            "characters": [c.model_dump() for c in world_state.visual.characters],
-            "activities": [a.model_dump() for a in world_state.visual.activities],
-            "scenes": world_state.visual.scenes,
-        }
+        input_text = ReasoningContextBuilder.build_intent_context(world_state)
 
         # Infer structured output
         output = inference_provider.infer_structured(
-            context_data=context_data, prompt=prompt, execution_context=context
+            input_text=input_text, 
+            prompt=prompt, 
+            expected_schema=IntentOutputSchema,
+            execution_context=context
         )
 
         # Build Delta Operations

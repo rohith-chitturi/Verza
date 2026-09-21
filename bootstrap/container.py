@@ -93,6 +93,7 @@ class VerzaContainer(containers.DeclarativeContainer):
     config.vision.iou_threshold.from_env("VERZA_TRACKER_IOU_THRESHOLD", 0.30)
     config.vision.activity_motion_threshold.from_env("VERZA_ACTIVITY_MOTION_THRESHOLD", 0.05)
     config.cognitive.vlm_model.from_env("VERZA_VLM_MODEL", "gemini-2.5-flash")
+    config.cognitive.reasoning_model.from_env("VERZA_REASONING_MODEL", "gemini-2.5-pro")
 
     # Core Infrastructure
     event_bus = providers.Singleton(InMemoryEventBus)
@@ -239,9 +240,13 @@ class VerzaContainer(containers.DeclarativeContainer):
     consistency_checker = providers.Singleton(ConsistencyChecker)
 
     # Inference Providers (M3.2)
+    from providers.inference.gemini.provider import GeminiInferenceProvider
     from providers.inference.mock_inference import MockInferenceProvider
 
     mock_inference_provider = providers.Singleton(MockInferenceProvider)
+    gemini_inference_provider = providers.Singleton(GeminiInferenceProvider, model_name=config.cognitive.reasoning_model)
+    
+    inference_provider = gemini_inference_provider
 
     # Reasoners (M3.2)
     from capabilities.cognitive.event_reasoner import EventReasoner
@@ -257,7 +262,7 @@ class VerzaContainer(containers.DeclarativeContainer):
 
     reasoning_engine = providers.Factory(
         ReasoningEngine,
-        inference_provider=mock_inference_provider,
+        inference_provider=inference_provider,
         intent_reasoner=intent_reasoner,
         relationship_reasoner=relationship_reasoner,
         event_reasoner=event_reasoner,

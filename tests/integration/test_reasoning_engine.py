@@ -5,6 +5,10 @@ from contracts.schemas.world import WorldState
 
 def test_reasoning_engine_integration():
     container = VerzaContainer()
+    
+    # Override to use mock for this general test
+    container.inference_provider.override(container.mock_inference_provider())
+    
     engine = container.reasoning_engine()
 
     initial_state = WorldState()
