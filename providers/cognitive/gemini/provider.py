@@ -68,7 +68,10 @@ class GeminiVLMProvider(VLMProvider):
         
         # In newer versions of the google-genai SDK, parsed field contains the Pydantic instance if response_schema is passed as a BaseModel.
         if hasattr(response, "parsed") and response.parsed:
-             return response.parsed
+            if isinstance(response.parsed, BaseModel):
+                return response.parsed
+            elif isinstance(response.parsed, dict):
+                return expected_schema.model_validate(response.parsed)
              
         # Fallback in case it returns raw json string and doesn't auto-parse
         if response.text:
