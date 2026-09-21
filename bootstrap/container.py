@@ -5,11 +5,13 @@ from sqlalchemy.orm import sessionmaker
 from capabilities.cognitive.memory_indexer import MemoryIndexerCapability
 from capabilities.cognitive.semantic_retrieval import SemanticRetrievalCapability
 from capabilities.cognitive.synthesis import SynthesisCapability
+from capabilities.media_understanding.activity_recognizer import (
+    ActivityRecognitionCapability,
+)
 from capabilities.media_understanding.audio import AudioSegmentationCapability
 from capabilities.media_understanding.document import DocumentUnderstandingCapability
 from capabilities.media_understanding.face_detector import FaceDetectionCapability
 from capabilities.media_understanding.face_tracker import FaceTrackingCapability
-from capabilities.media_understanding.activity_recognizer import ActivityRecognitionCapability
 from capabilities.media_understanding.metadata import MetadataExtractionCapability
 from capabilities.media_understanding.object_detector import ObjectDetectionCapability
 from capabilities.media_understanding.object_tracker import ObjectTrackingCapability
@@ -17,6 +19,9 @@ from capabilities.media_understanding.shot_detector import ShotDetectionCapabili
 from capabilities.speech_recognition import SpeechRecognitionCapability
 from core.event_bus.bus import InMemoryEventBus
 from core.registry.capability import CapabilityRegistry
+from providers.cognitive.heuristic_activity_recognizer import (
+    HeuristicActivityRecognizer,
+)
 from providers.media.ffmpeg.audio_provider import AudioSegmentationProvider
 from providers.media.ffmpeg.metadata_provider import FFmpegMetadataProvider
 from providers.memory.embedding.sentence_transformer import SentenceTransformerProvider
@@ -25,7 +30,6 @@ from providers.vision.easyocr.provider import EasyOCRProvider
 from providers.vision.opencv.face_detector import OpenCVFaceDetector
 from providers.vision.pyscenedetect.provider import PySceneDetectProvider
 from providers.vision.tracking.iou_face_tracker import IoUFaceTracker
-from providers.cognitive.heuristic_activity_recognizer import HeuristicActivityRecognizer
 from providers.vision.tracking.iou_tracker import IoUObjectTracker
 from providers.vision.yolo.provider import YOLOObjectDetector
 from storage.catalog.memory_repository import PostgresMemoryRepository

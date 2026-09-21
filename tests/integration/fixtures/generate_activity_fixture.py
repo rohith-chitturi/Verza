@@ -1,10 +1,10 @@
 import os
-import urllib.request
-import numpy as np
-import cv2
-import wave
 import struct
 import subprocess
+import urllib.request
+import wave
+
+import cv2
 
 
 def generate_activity_fixture():

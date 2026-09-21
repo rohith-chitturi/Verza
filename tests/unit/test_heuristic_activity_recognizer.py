@@ -1,4 +1,3 @@
-import pytest
 
 from contracts.schemas.world import (
     AudioClip,
@@ -11,7 +10,9 @@ from contracts.schemas.world import (
     TrackedObject,
     VisualContext,
 )
-from providers.cognitive.heuristic_activity_recognizer import HeuristicActivityRecognizer
+from providers.cognitive.heuristic_activity_recognizer import (
+    HeuristicActivityRecognizer,
+)
 
 
 def test_moving_activity():

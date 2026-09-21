@@ -3,8 +3,6 @@ import math
 from contracts.schemas.world import (
     Activity,
     AudioContext,
-    Evidence,
-    Provenance,
     TrackedFace,
     TrackedObject,
     VisualContext,

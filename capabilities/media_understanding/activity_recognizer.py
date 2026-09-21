@@ -25,11 +25,14 @@ class ActivityRecognitionCapability(BaseCapability):
         
         # We need both visual and audio context to extract meaningful cross-modal activities.
         activities = self.provider.recognize_activities(
-            visual_context=context.world_state.visual,
-            audio_context=context.world_state.audio
+            visual_context=context.world.visual,
+            audio_context=context.world.audio
         )
         
-        context.world_state.activities = activities
+        # WorldState is immutable, so we create a new VisualContext and WorldState
+        new_visual = context.world.visual.model_copy(update={"activities": activities})
+        new_world = context.world.with_visual(new_visual)
+        new_context = context.with_world(new_world)
         
         logger.info("activity_recognition_completed", count=len(activities), trace_id=trace_id)
-        return context
+        return new_context

@@ -70,6 +70,7 @@ class Activity(BaseModel):
     end_time_s: float
     confidence: float | None = None
     evidence: Evidence | None = None
+    location: str | None = None
 
 
 class Camera(BaseModel):
