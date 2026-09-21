@@ -38,6 +38,9 @@ vision = [
     "scenedetect>=0.6.3",
     "ultralytics>=8.1.0"
 ]
+cognitive = [
+    "google-genai>=0.2.0"
+]
 
 [tool.uv]
 managed = true
