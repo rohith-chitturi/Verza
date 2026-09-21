@@ -7,6 +7,8 @@ from capabilities.cognitive.semantic_retrieval import SemanticRetrievalCapabilit
 from capabilities.cognitive.synthesis import SynthesisCapability
 from capabilities.media_understanding.audio import AudioSegmentationCapability
 from capabilities.media_understanding.document import DocumentUnderstandingCapability
+from capabilities.media_understanding.face_detector import FaceDetectionCapability
+from capabilities.media_understanding.face_tracker import FaceTrackingCapability
 from capabilities.media_understanding.metadata import MetadataExtractionCapability
 from capabilities.media_understanding.object_detector import ObjectDetectionCapability
 from capabilities.media_understanding.object_tracker import ObjectTrackingCapability
@@ -19,7 +21,9 @@ from providers.media.ffmpeg.metadata_provider import FFmpegMetadataProvider
 from providers.memory.embedding.sentence_transformer import SentenceTransformerProvider
 from providers.speech.whisper.provider import WhisperRecognizer
 from providers.vision.easyocr.provider import EasyOCRProvider
+from providers.vision.opencv.face_detector import OpenCVFaceDetector
 from providers.vision.pyscenedetect.provider import PySceneDetectProvider
+from providers.vision.tracking.iou_face_tracker import IoUFaceTracker
 from providers.vision.tracking.iou_tracker import IoUObjectTracker
 from providers.vision.yolo.provider import YOLOObjectDetector
 from storage.catalog.memory_repository import PostgresMemoryRepository
@@ -99,6 +103,8 @@ class VerzaContainer(containers.DeclarativeContainer):
     ffmpeg_audio_provider = providers.Singleton(AudioSegmentationProvider)
     yolo_provider = providers.Singleton(YOLOObjectDetector, model_path=config.vision.yolo_model)
     iou_tracker_provider = providers.Singleton(IoUObjectTracker, iou_threshold=config.vision.iou_threshold.as_float())
+    opencv_face_detector_provider = providers.Singleton(OpenCVFaceDetector)
+    iou_face_tracker_provider = providers.Singleton(IoUFaceTracker, iou_threshold=config.vision.iou_threshold.as_float())
 
     # Capabilities (M1)
     speech_recognition_capability = providers.Factory(
@@ -155,6 +161,14 @@ class VerzaContainer(containers.DeclarativeContainer):
 
     object_tracking_cap = providers.Factory(
         ObjectTrackingCapability, provider=iou_tracker_provider
+    )
+
+    face_detection_cap = providers.Factory(
+        FaceDetectionCapability, provider=opencv_face_detector_provider
+    )
+
+    face_tracking_cap = providers.Factory(
+        FaceTrackingCapability, provider=iou_face_tracker_provider
     )
 
     # Core State & Prompts (M3.1)
@@ -256,6 +270,8 @@ class VerzaContainer(containers.DeclarativeContainer):
             "audio_segmentation": audio_cap.provider,
             "object_detection": object_cap.provider,
             "object_tracking": object_tracking_cap.provider,
+            "face_detection": face_detection_cap.provider,
+            "face_tracking": face_tracking_cap.provider,
             "scene_interpretation": scene_interpreter.provider,
             "character_interpretation": character_interpreter.provider,
             "activity_interpretation": activity_interpreter.provider,

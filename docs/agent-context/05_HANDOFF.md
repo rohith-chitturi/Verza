@@ -5,6 +5,7 @@
 You are entering the **Verza** repository right after we successfully proved that the M4 Runtime can execute end-to-end against real physical PostgreSQL.
 
 ## Completed Work (Latest to Oldest)
+- **M2 Phase 7 (Face Detection & Tracking)**: Deployed zero-dependency `OpenCVFaceDetector` for Haar cascade face extraction and created `IoUFaceTracker`. Extracted generic tracking mechanics into `iou_matcher.py` for code reuse between Object/Face tracking. Generated synthetic stable face fixture panning across `Lenna`.
 - **M2 Phase 6 (Object Tracking)**: Authored a mathematically pure, zero-dependency `IoUObjectTracker` provider to bind `DetectedObject` streams into persistent `TrackedObject` entities. Added full DI support, strictly verified against YOLO streams offline.
 - **M2 Phase 5 (Object Detection)**: Integrated YOLO through `ultralytics`. Designed a committed MP4 test fixture and explicitly provisioned the `yolov8n.pt` model to prevent CI network dependencies. Stored results via the `ObjectDetectionProvider` directly into `VisualContext.objects`.
 - **M2 Phase 4 (Audio Segmentation)**: Implemented real audio segmentation via FFmpeg's `silencedetect`. Built mathematical 3.0s `.wav` fixture (active/silence/active) to rigorously assert the extracted `AudioContext`.
