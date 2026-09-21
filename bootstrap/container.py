@@ -5,6 +5,9 @@ from sqlalchemy.orm import sessionmaker
 from capabilities.cognitive.memory_indexer import MemoryIndexerCapability
 from capabilities.cognitive.semantic_retrieval import SemanticRetrievalCapability
 from capabilities.cognitive.synthesis import SynthesisCapability
+from capabilities.media_understanding.activity_recognizer import (
+    ActivityRecognitionCapability,
+)
 from capabilities.media_understanding.audio import AudioSegmentationCapability
 from capabilities.media_understanding.document import DocumentUnderstandingCapability
 from capabilities.media_understanding.face_detector import FaceDetectionCapability
@@ -16,6 +19,9 @@ from capabilities.media_understanding.shot_detector import ShotDetectionCapabili
 from capabilities.speech_recognition import SpeechRecognitionCapability
 from core.event_bus.bus import InMemoryEventBus
 from core.registry.capability import CapabilityRegistry
+from providers.cognitive.heuristic_activity_recognizer import (
+    HeuristicActivityRecognizer,
+)
 from providers.media.ffmpeg.audio_provider import AudioSegmentationProvider
 from providers.media.ffmpeg.metadata_provider import FFmpegMetadataProvider
 from providers.memory.embedding.sentence_transformer import SentenceTransformerProvider
@@ -85,6 +91,7 @@ class VerzaContainer(containers.DeclarativeContainer):
     config = providers.Configuration()
     config.vision.yolo_model.from_env("VERZA_YOLO_MODEL", "yolov8n.pt")
     config.vision.iou_threshold.from_env("VERZA_TRACKER_IOU_THRESHOLD", 0.30)
+    config.vision.activity_motion_threshold.from_env("VERZA_ACTIVITY_MOTION_THRESHOLD", 0.05)
 
     # Core Infrastructure
     event_bus = providers.Singleton(InMemoryEventBus)
@@ -105,6 +112,10 @@ class VerzaContainer(containers.DeclarativeContainer):
     iou_tracker_provider = providers.Singleton(IoUObjectTracker, iou_threshold=config.vision.iou_threshold.as_float())
     opencv_face_detector_provider = providers.Singleton(OpenCVFaceDetector)
     iou_face_tracker_provider = providers.Singleton(IoUFaceTracker, iou_threshold=config.vision.iou_threshold.as_float())
+    heuristic_activity_recognizer_provider = providers.Singleton(
+        HeuristicActivityRecognizer, 
+        motion_threshold=config.vision.activity_motion_threshold.as_float()
+    )
 
     # Capabilities (M1)
     speech_recognition_capability = providers.Factory(
@@ -169,6 +180,10 @@ class VerzaContainer(containers.DeclarativeContainer):
 
     face_tracking_cap = providers.Factory(
         FaceTrackingCapability, provider=iou_face_tracker_provider
+    )
+
+    activity_recognition_cap = providers.Factory(
+        ActivityRecognitionCapability, provider=heuristic_activity_recognizer_provider
     )
 
     # Core State & Prompts (M3.1)

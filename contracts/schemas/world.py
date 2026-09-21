@@ -64,11 +64,13 @@ class Character(BaseModel):
 
 class Activity(BaseModel):
     model_config = ConfigDict(frozen=True)
-    type: str  # e.g., "Walking", "Talking"
-    participants: list[str] = Field(default_factory=list)  # Entity IDs
-    objects: list[str] = Field(default_factory=list)  # Entity IDs
-    location: str | None = None
+    type: str  # e.g., "Moving", "AudioActiveOnScreen"
+    participants: list[str] = Field(default_factory=list)  # Entity IDs (track_ids)
+    start_time_s: float
+    end_time_s: float
+    confidence: float | None = None
     evidence: Evidence | None = None
+    location: str | None = None
 
 
 class Camera(BaseModel):

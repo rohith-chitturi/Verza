@@ -4,6 +4,17 @@
 
 You are entering the **Verza** repository right after we successfully proved that the M4 Runtime can execute end-to-end against real physical PostgreSQL.
 
+## Current Priority: M3.1 Interpretation & Reasoning
+M2 is completely finalized, ending with the Heuristic Activity Recognition layer. The focus now shifts to M3.1 (Sensemaking / Context), wiring real VLM providers (like Gemini/OpenAI) to interpret the rich WorldState context.
+
+## Milestone Status
+- [x] Integrate pure-Python IoU object tracking
+- [x] Integrate OpenCV Haar Face Detection
+- [x] Wire IoU Face Tracking pipeline
+- [x] Build Heuristic Activity Recognizer (Zero-Dependency)
+- [ ] M3.1: Wire real VLM/LLM engines to DeltaJournal
+- [ ] M3.2: Formalize the interpretation workflow
+
 ## Completed Work (Latest to Oldest)
 - **M2 Phase 7 (Face Detection & Tracking)**: Deployed zero-dependency `OpenCVFaceDetector` for Haar cascade face extraction and created `IoUFaceTracker`. Extracted generic tracking mechanics into `iou_matcher.py` for code reuse between Object/Face tracking. Generated synthetic stable face fixture panning across `Lenna`.
 - **M2 Phase 6 (Object Tracking)**: Authored a mathematically pure, zero-dependency `IoUObjectTracker` provider to bind `DetectedObject` streams into persistent `TrackedObject` entities. Added full DI support, strictly verified against YOLO streams offline.
