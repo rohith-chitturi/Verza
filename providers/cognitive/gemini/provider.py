@@ -1,8 +1,6 @@
 
 from pydantic import BaseModel
 
-
-
 from contracts.schemas.prompt import PromptAsset
 from core.telemetry.logging import get_logger
 from interfaces.cognitive.vlm_provider import VLMProvider
