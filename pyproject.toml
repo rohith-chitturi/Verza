@@ -32,6 +32,7 @@ speech = [
 ]
 vision = [
     "easyocr>=1.7.0",
+    "opencv-python>=4.9.0,<5.0.0",
     "opencv-python-headless>=4.9.0,<5.0.0",
     "pillow>=10.0.0",
     "scenedetect>=0.6.3",
