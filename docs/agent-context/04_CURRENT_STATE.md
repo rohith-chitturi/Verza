@@ -1,9 +1,12 @@
 # 04. CURRENT STATE
 
 ## CURRENT MILESTONE:
-- **Current Phase:** M2: Media Understanding (Partially Real - Whisper, EasyOCR, PySceneDetect, Audio Segmentation, YOLO Object Detection, IoU Object Tracking, OpenCV Face Detection & Tracking verified)
-- **Current Branch:** `feature/m2-face-tracking`
-- **Active Focus:** Implementing real provider logic behind capability boundaries, using DI and physical fixtures.
+- **Current Phase:** M2 (Media Understanding): `100% COMPLETE`. 
+  - Metadata, OpenCV, PySceneDetect, Whisper, EasyOCR, FFmpeg audio segmentation.
+  - YOLO object detection decoupled from pure-Python greedy IoU tracking.
+  - OpenCV Haar face detection decoupled from IoU tracking.
+  - **Heuristic Activity Recognition** synthesizes `Moving` and `AudioActiveOnScreen` without heavy ML.
+- **M3.1 (Context & Prompts):** `WIP`. DeltaJournal and PromptRegistry built. Needs VLM wiring.
 
 ## LAST VERIFIED:
 27 tests passing against real PostgreSQL and real Whisper inference.
