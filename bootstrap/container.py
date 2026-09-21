@@ -92,6 +92,7 @@ class VerzaContainer(containers.DeclarativeContainer):
     config.vision.yolo_model.from_env("VERZA_YOLO_MODEL", "yolov8n.pt")
     config.vision.iou_threshold.from_env("VERZA_TRACKER_IOU_THRESHOLD", 0.30)
     config.vision.activity_motion_threshold.from_env("VERZA_ACTIVITY_MOTION_THRESHOLD", 0.05)
+    config.cognitive.vlm_model.from_env("VERZA_VLM_MODEL", "gemini-2.5-flash")
 
     # Core Infrastructure
     event_bus = providers.Singleton(InMemoryEventBus)
@@ -199,8 +200,13 @@ class VerzaContainer(containers.DeclarativeContainer):
 
     # Cognitive Providers (M3.1)
     from interfaces.cognitive.mock_vlm import MockVLMProvider
+    from providers.cognitive.gemini.provider import GeminiVLMProvider
 
     mock_vlm_provider = providers.Singleton(MockVLMProvider)
+    gemini_vlm_provider = providers.Singleton(GeminiVLMProvider, model_name=config.cognitive.vlm_model)
+
+    # Use ProviderPolicy or env var here? For now we can use gemini
+    vlm_provider = gemini_vlm_provider
 
     # Interpreters (M3.1)
     from capabilities.cognitive.activity_interpreter import ActivityInterpreter
@@ -210,6 +216,22 @@ class VerzaContainer(containers.DeclarativeContainer):
     scene_interpreter = providers.Factory(SceneInterpreter)
     character_interpreter = providers.Factory(CharacterInterpreter)
     activity_interpreter = providers.Factory(ActivityInterpreter)
+
+    from core.workflow.interpretation import InterpretationEngine
+    
+    interpretation_engine = providers.Factory(
+        InterpretationEngine,
+        interpreters=providers.List(
+            scene_interpreter,
+            character_interpreter,
+            activity_interpreter,
+        ),
+        vlm_provider=vlm_provider,
+        prompt_registry=prompt_registry,
+        validator=delta_validator,
+        merger=delta_merger,
+        journal=delta_journal,
+    )
 
     # State Consistency (M3.2)
     from core.state.consistency import ConsistencyChecker
