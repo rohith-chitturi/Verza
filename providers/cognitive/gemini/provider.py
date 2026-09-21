@@ -1,5 +1,7 @@
 import os
+
 from pydantic import BaseModel
+
 try:
     from google import genai  # type: ignore
     from google.genai import types  # type: ignore
