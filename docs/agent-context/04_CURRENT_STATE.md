@@ -1,8 +1,8 @@
 # 04. CURRENT STATE
 
 ## CURRENT MILESTONE:
-- **Current Phase:** M2: Media Understanding (Partially Real - Whisper, EasyOCR, PySceneDetect, Audio Segmentation, YOLO Object Detection, IoU Object Tracking verified)
-- **Current Branch:** `feature/m2-object-tracking`
+- **Current Phase:** M2: Media Understanding (Partially Real - Whisper, EasyOCR, PySceneDetect, Audio Segmentation, YOLO Object Detection, IoU Object Tracking, OpenCV Face Detection & Tracking verified)
+- **Current Branch:** `feature/m2-face-tracking`
 - **Active Focus:** Implementing real provider logic behind capability boundaries, using DI and physical fixtures.
 
 ## LAST VERIFIED:

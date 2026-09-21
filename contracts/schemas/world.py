@@ -117,6 +117,27 @@ class TrackedObject(BaseModel):
     trajectory: list[TrackedAppearance] = Field(default_factory=list)
 
 
+class FaceDetection(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    frame: int
+    timestamp_s: float
+    bounding_box: list[float]  # [x1, y1, x2, y2]
+    confidence: float | None = None
+
+
+class TrackedFaceAppearance(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    frame: int
+    timestamp_s: float
+    bounding_box: list[float]  # [x1, y1, x2, y2]
+
+
+class TrackedFace(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    track_id: str
+    trajectory: list[TrackedFaceAppearance] = Field(default_factory=list)
+
+
 class VisualContext(BaseModel):
     model_config = ConfigDict(frozen=True)
     sequences: list[dict[str, Any]] = Field(default_factory=list)
@@ -124,7 +145,8 @@ class VisualContext(BaseModel):
     shots: list[dict[str, Any]] = Field(default_factory=list)
     frames: list[dict[str, Any]] = Field(default_factory=list)
     characters: list[Character] = Field(default_factory=list)
-    faces: list[dict[str, Any]] = Field(default_factory=list)
+    face_detections: list[FaceDetection] = Field(default_factory=list)
+    faces: list[TrackedFace] = Field(default_factory=list)
     objects: list[DetectedObject] = Field(default_factory=list)
     tracked_objects: list[TrackedObject] = Field(default_factory=list)
     activities: list[Activity] = Field(default_factory=list)

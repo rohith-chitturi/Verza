@@ -1,7 +1,8 @@
 import pytest
 
 from contracts.schemas.world import DetectedObject
-from providers.vision.tracking.iou_tracker import IoUObjectTracker, compute_iou
+from providers.vision.tracking.iou_matcher import compute_iou
+from providers.vision.tracking.iou_tracker import IoUObjectTracker
 
 
 def test_compute_iou():
