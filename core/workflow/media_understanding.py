@@ -112,8 +112,8 @@ class MediaUnderstandingEngine:
             object_cap,  # 6. Objects
             object_tracking_cap,  # 6.5 Object Tracking
             doc_cap,  # 7. Document Understanding (OCR)
-            MockActivitiesCapability(),  # 8. Activities
             audio_cap,  # 9. Audio Segmentation
+            container.activity_recognition_cap(),  # 10. Activities
             MockSemanticGraphCapability(),  # 10. Semantic Graph
             MockWorldSynthesisCapability(),  # 11. Synthesis
         ]
