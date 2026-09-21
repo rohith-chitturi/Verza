@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 
 from contracts.schemas.prompt import PromptAsset
-from contracts.schemas.world import Evidence
 from core.telemetry.logging import get_logger
 from interfaces.cognitive.vlm_provider import VLMProvider
 
@@ -19,17 +18,18 @@ class MockVLMProvider(VLMProvider):
     def get_metadata(self) -> dict:
         return {"name": "mock-vlm", "type": "mock", "version": "1.0"}
 
-    def generate_structured(self, evidence: Evidence, prompt: PromptAsset) -> BaseModel:
+    def generate_structured(
+        self, input_text: str, prompt: PromptAsset, expected_schema: type[BaseModel]
+    ) -> BaseModel:
         logger.info(f"Mocking VLM response for prompt version {prompt.version}")
 
-        # In a real provider, we'd call openai.chat.completions.create(..., response_format=prompt.expected_schema)
+        # In a real provider, we'd call the API with expected_schema.
         # Here we just instantiate the expected schema with dummy data.
 
-        expected = prompt.expected_schema
-        name = expected.__name__
+        name = expected_schema.__name__
 
         if name == "SceneOutputSchema":
-            return expected(
+            return expected_schema(
                 summary="A tense confrontation in an alley.",
                 mood="tense",
                 confidence=0.88,
@@ -40,7 +40,7 @@ class MockVLMProvider(VLMProvider):
                 CharacterTraitSchema,
             )
 
-            return expected(
+            return expected_schema(
                 characters=[
                     CharacterTraitSchema(
                         visual_description="Tall man in black coat",
@@ -53,7 +53,7 @@ class MockVLMProvider(VLMProvider):
         elif name == "ActivityOutputSchema":
             from capabilities.cognitive.activity_interpreter import ActivityTraitSchema
 
-            return expected(
+            return expected_schema(
                 activities=[
                     ActivityTraitSchema(action="Walking aggressively", confidence=0.85)
                 ]

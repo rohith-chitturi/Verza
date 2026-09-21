@@ -51,8 +51,10 @@ class CharacterInterpreter(BaseInterpreter):
         parent_confidence: float = 1.0,
     ) -> WorldStateDelta:
 
+        input_text = evidence.model_dump_json(indent=2)
+
         output = cast(
-            CharacterOutputSchema, vlm_provider.generate_structured(evidence, prompt)
+            CharacterOutputSchema, vlm_provider.generate_structured(input_text, prompt, CharacterOutputSchema)
         )
 
         ops = []
