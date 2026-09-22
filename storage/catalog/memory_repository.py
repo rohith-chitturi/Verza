@@ -41,7 +41,7 @@ class PostgresMemoryRepository:
                 model=memory.provenance.model,
                 confidence=memory.provenance.confidence,
             )
-            session.add(model)
+            session.merge(model)
             session.commit()
 
     def save_semantic_memory(self, memory: SemanticMemory) -> None:
@@ -68,7 +68,7 @@ class PostgresMemoryRepository:
                 model=memory.provenance.model,
                 confidence=memory.provenance.confidence,
             )
-            session.add(model)
+            session.merge(model)
             session.commit()
 
     def retrieve(self, query: RetrievalQuery, query_embedding: list[float] | None = None) -> list[RetrievedMemory]:
@@ -97,7 +97,10 @@ class PostgresMemoryRepository:
                 # If we have an embedding, we can order by cosine similarity using pgvector
                 # l2_distance (<->), cosine_distance (<=>), inner_product (<#>)
                 if query_embedding is not None:
-                    stmt = stmt.order_by(EpisodicMemoryModel.embedding.cosine_distance(query_embedding))
+                    stmt = stmt.order_by(
+                        EpisodicMemoryModel.embedding.cosine_distance(query_embedding),
+                        EpisodicMemoryModel.id.asc()
+                    )
                     stmt = stmt.limit(query.top_k)
 
                 episodic_models = session.execute(stmt).scalars().all()
@@ -151,7 +154,10 @@ class PostgresMemoryRepository:
                     sem_stmt = sem_stmt.where(SemanticMemoryModel.confidence >= query.min_confidence)
                     
                 if query_embedding is not None:
-                    sem_stmt = sem_stmt.order_by(SemanticMemoryModel.embedding.cosine_distance(query_embedding))
+                    sem_stmt = sem_stmt.order_by(
+                        SemanticMemoryModel.embedding.cosine_distance(query_embedding),
+                        SemanticMemoryModel.id.asc()
+                    )
                     sem_stmt = sem_stmt.limit(query.top_k)
 
                 semantic_models = session.execute(sem_stmt).scalars().all()
@@ -193,6 +199,6 @@ class PostgresMemoryRepository:
                         final_score=similarity * model.confidence
                     ))
 
-        # Sort combined results
-        results.sort(key=lambda x: x.final_score, reverse=True)
+        # Sort combined results by score DESC, then by memory ID ASC for deterministic tie-breaks
+        results.sort(key=lambda x: (-x.final_score, x.memory.id))
         return results[:query.top_k]

@@ -78,5 +78,20 @@ class MockInferenceProvider(InferenceProvider):
                 ]
             )
 
+        elif "synthesis" in prompt.id.lower():
+            return expected_schema(
+                narrative="Mock synthesized narrative.",
+                key_events=["event 1", "event 2"],
+                memory_citations=["mem-1", "mem-2"],
+                confidence=0.95
+            )
+
         # Fallback
-        return expected_schema(output="Mock inference")
+        # Note: If expected_schema doesn't have an 'output' field, this will throw ValidationError.
+        try:
+            return expected_schema(output="Mock inference")
+        except ValueError:
+            # Try to return an empty instance if it has defaults, or just raise
+            pass
+            
+        raise ValueError(f"No mock behavior defined for prompt ID: {prompt.id}")
