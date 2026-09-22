@@ -234,6 +234,12 @@ class VerzaContainer(containers.DeclarativeContainer):
         journal=delta_journal,
     )
 
+    from core.workflow.adapters.interpretation import InterpretationCapability
+    interpretation_capability = providers.Factory(
+        InterpretationCapability,
+        engine=interpretation_engine
+    )
+
     # State Consistency (M3.2)
     from core.state.consistency import ConsistencyChecker
 
@@ -273,6 +279,12 @@ class VerzaContainer(containers.DeclarativeContainer):
         prompt_registry=prompt_registry,
     )
 
+    from core.workflow.adapters.reasoning import ReasoningCapability
+    reasoning_capability = providers.Factory(
+        ReasoningCapability,
+        engine=reasoning_engine
+    )
+
     # Memory & Synthesis (M3.3)
     # Default to local PG for development
     db_engine = providers.Singleton(create_engine, "postgresql+psycopg://verza:verza_password@localhost:5432/verza_db")
@@ -298,6 +310,18 @@ class VerzaContainer(containers.DeclarativeContainer):
         inference_provider=inference_provider,
     )
 
+    from core.workflow.adapters.memory_synthesis import (
+        MemorySynthesisWorkflowCapability,
+    )
+    memory_synthesis_capability = providers.Factory(
+        MemorySynthesisWorkflowCapability,
+        indexer=memory_indexer,
+        retrieval=semantic_retrieval,
+        synthesis=synthesis,
+        merger=delta_merger,
+        journal=delta_journal,
+    )
+
     # Capability Registry (M4)
     capability_registry = providers.Singleton(
         CapabilityRegistry,
@@ -314,12 +338,8 @@ class VerzaContainer(containers.DeclarativeContainer):
             "object_tracking": object_tracking_cap.provider,
             "face_detection": face_detection_cap.provider,
             "face_tracking": face_tracking_cap.provider,
-            "scene_interpretation": scene_interpreter.provider,
-            "character_interpretation": character_interpreter.provider,
-            "activity_interpretation": activity_interpreter.provider,
-            "reasoning": reasoning_engine.provider,
-            "memory_indexing": memory_indexer.provider,
-            "semantic_retrieval": semantic_retrieval.provider,
-            "synthesis": synthesis.provider
+            "interpretation": interpretation_capability.provider,
+            "reasoning": reasoning_capability.provider,
+            "memory_synthesis": memory_synthesis_capability.provider
         })
     )

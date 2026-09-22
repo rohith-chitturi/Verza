@@ -25,7 +25,7 @@ class MockCapability:
             if self.fail_times > 0:
                 self.fail_times -= 1
             raise MockCapabilityError("Capability failed")
-        return "Success"
+        return context
 
 @pytest.fixture
 def repo():

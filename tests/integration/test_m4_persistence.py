@@ -14,7 +14,7 @@ class PersistenceMockCapability:
     def execute(self, context=None, trace_id=None, **kwargs):
         if self.should_fail:
             raise RuntimeError("Intentional failure for rollback test")
-        return "Success"
+        return context
 
 @pytest.fixture
 def persistence_registry():

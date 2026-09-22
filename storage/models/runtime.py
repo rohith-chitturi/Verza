@@ -44,6 +44,7 @@ class WorkflowRunModel(Base):
         ForeignKey("workflow_runs.id"), nullable=True
     )  # For replay lineage
     status: Mapped[str] = mapped_column(String, nullable=False)
+    world_state: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     started_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
