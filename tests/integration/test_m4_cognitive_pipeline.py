@@ -25,8 +25,6 @@ def test_container(session_factory):
     # We want to mock VLM and Inference for deterministic tests, 
     # but use the real M4 DAG and the real PostgreSQL DB.
     # The container defaults to gemini_vlm_provider, let's override it
-    from interfaces.cognitive.mock_vlm import MockVLMProvider
-    from providers.inference.mock_inference import MockInferenceProvider
     
     container.vlm_provider.override(container.mock_vlm_provider)
     container.inference_provider.override(container.mock_inference_provider)

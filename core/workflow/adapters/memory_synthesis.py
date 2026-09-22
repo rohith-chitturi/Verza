@@ -3,12 +3,6 @@ from capabilities.cognitive.memory_indexer import MemoryIndexerCapability
 from capabilities.cognitive.semantic_retrieval import SemanticRetrievalCapability
 from capabilities.cognitive.synthesis import SynthesisCapability
 from contracts.schemas.context import AIContext, ExecutionContext
-from contracts.schemas.delta import (
-    ConfidenceScore,
-    DeltaChange,
-    Operation,
-    WorldStateDelta,
-)
 from core.state.journal import DeltaJournal
 from core.state.merger import DeltaMerger
 from core.telemetry.logging import get_logger
