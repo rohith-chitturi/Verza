@@ -47,6 +47,12 @@ class WorkflowRuntime:
         self._run_repo.create_run(run_id, version_id, parent_run_id=parent_run_id)
         self._run_repo.update_run_status(run_id, ExecutionState.QUEUED)
         
+        # If replaying, we need to copy the latest world state from parent for now
+        # In a fully robust system we'd rebuild from CheckpointModel or DeltaJournal
+        parent_state = self._run_repo.get_world_state(parent_run_id)
+        if parent_state:
+            self._run_repo.save_world_state(run_id, parent_state)
+            
         thread = threading.Thread(target=self._execute_run, args=(run_id, workflow, from_stage))
         thread.start()
         
@@ -136,11 +142,25 @@ class WorkflowRuntime:
                             # In real system, we'd pass the provider to the capability execution context
                             capability = self._registry.get(stage_def.capability)
                             
-                            # In a real system, the media_id would be retrieved from the Run Parameters
+                            # Fetch world state from DB
                             from contracts.schemas.context import AIContext
-                            context = AIContext(media_id="tests/integration/fixtures/test_media.wav", workflow_id=workflow.id, language="en")
+                            from contracts.schemas.world import WorldState
                             
-                            capability.execute(context=context, trace_id=stage_run_id)
+                            saved_state_dict = self._run_repo.get_world_state(run_id)
+                            world_state = WorldState(**saved_state_dict) if saved_state_dict else WorldState()
+                            
+                            # In a real system, the media_id would be retrieved from the Run Parameters
+                            context = AIContext(
+                                media_id="tests/integration/fixtures/test_media.wav", 
+                                workflow_id=workflow.id, 
+                                language="en",
+                                world=world_state
+                            )
+                            
+                            new_context = capability.execute(context=context, trace_id=stage_run_id)
+                            
+                            # Save mutated world state back to DB
+                            self._run_repo.save_world_state(run_id, new_context.world.model_dump(mode="json"))
                             
                             self._run_repo.update_stage_status(stage_run_id, ExecutionState.COMPLETED)
                             logger.info(f"Stage {stage_id} completed successfully via {provider}.")

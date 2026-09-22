@@ -91,8 +91,15 @@ class MemoryIndexerCapability:
         # Events
         for event in world_state.semantic.events:
             content = f"Event: {event.type} involving {', '.join(event.participants)}. Causes: {', '.join(event.causes)}. Consequences: {', '.join(event.consequences)}"
-            start_t = float(event.start) if event.start else 0.0
-            end_t = float(event.end) if event.end else start_t
+            try:
+                start_t = float(event.start) if event.start else 0.0
+            except ValueError:
+                start_t = 0.0
+                
+            try:
+                end_t = float(event.end) if event.end else start_t
+            except ValueError:
+                end_t = start_t
             
             memory_id = _generate_memory_id("episodic", content, start_t)
             

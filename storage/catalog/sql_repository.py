@@ -1,5 +1,6 @@
 from abc import ABC
 from collections.abc import Sequence
+from typing import Any
 
 from sqlalchemy import select
 
@@ -86,6 +87,20 @@ class RunSqlRepository(BaseSqlRepository):
     def get_run(self, run_id: str) -> WorkflowRunModel | None:
         with self._session_factory() as session:
             return session.execute(select(WorkflowRunModel).where(WorkflowRunModel.id == run_id)).scalar_one_or_none()
+
+    def save_world_state(self, run_id: str, world_state: dict[str, Any]) -> None:
+        with self._session_factory() as session:
+            run = session.execute(select(WorkflowRunModel).where(WorkflowRunModel.id == run_id)).scalar_one_or_none()
+            if run:
+                run.world_state = world_state
+                session.commit()
+
+    def get_world_state(self, run_id: str) -> dict[str, Any] | None:
+        with self._session_factory() as session:
+            run = session.execute(select(WorkflowRunModel).where(WorkflowRunModel.id == run_id)).scalar_one_or_none()
+            if run:
+                return run.world_state
+            return None
 
     def get_stage_runs(self, run_id: str) -> Sequence[StageRunModel]:
         with self._session_factory() as session:
