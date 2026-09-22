@@ -4,9 +4,8 @@ from bootstrap.container import VerzaContainer
 from contracts.schemas.memory import RetrievalQuery
 from contracts.schemas.result import SynthesisResult
 from contracts.schemas.world import (
-    StructuredEvent,
-    TemporalIntent,
     KnowledgeGraphEdge,
+    StructuredEvent,
     WorldState,
 )
 
