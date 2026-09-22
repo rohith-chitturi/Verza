@@ -58,7 +58,7 @@ class MemorySynthesisWorkflowCapability(BaseCapability):
         # 3. Retrieve relevant memory fragments
         logger.info("Starting semantic retrieval", trace_id=trace_id, query=query_text)
         from contracts.schemas.memory import RetrievalQuery
-        query_obj = RetrievalQuery(query=query_text, limit=10, min_confidence=0.3)
+        query_obj = RetrievalQuery(query=query_text, top_k=10, min_confidence=0.3)
         retrieved_memories = self._retrieval.execute(query_obj, None)
 
         # 4. Synthesize narrative
