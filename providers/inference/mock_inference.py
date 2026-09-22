@@ -1,7 +1,7 @@
 import uuid
 from typing import Any
 
-from pydantic import BaseModel, create_model
+from pydantic import BaseModel
 
 from contracts.schemas.context import ExecutionContext
 from contracts.schemas.prompt import PromptAsset
@@ -34,10 +34,7 @@ class MockInferenceProvider(InferenceProvider):
 
         # Determine what to return based on the reasoner invoking it
         if "intent" in prompt.id.lower():
-            IntentOutputSchema = create_model(
-                "IntentOutputSchema", intentions=(list[TemporalIntent], ...)
-            )
-            return IntentOutputSchema(
+            return expected_schema(
                 intentions=[
                     TemporalIntent(
                         actor="character-001",
@@ -51,10 +48,7 @@ class MockInferenceProvider(InferenceProvider):
             )
 
         elif "relationship" in prompt.id.lower():
-            RelationshipOutputSchema = create_model(
-                "RelationshipOutputSchema", edges=(list[KnowledgeGraphEdge], ...)
-            )
-            return RelationshipOutputSchema(
+            return expected_schema(
                 edges=[
                     KnowledgeGraphEdge(
                         id=f"edge-{uuid.uuid4().hex[:8]}",
@@ -69,10 +63,7 @@ class MockInferenceProvider(InferenceProvider):
             )
 
         elif "event" in prompt.id.lower():
-            EventOutputSchema = create_model(
-                "EventOutputSchema", events=(list[StructuredEvent], ...)
-            )
-            return EventOutputSchema(
+            return expected_schema(
                 events=[
                     StructuredEvent(
                         id=f"event-{uuid.uuid4().hex[:8]}",

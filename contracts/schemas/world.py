@@ -64,11 +64,13 @@ class Character(BaseModel):
 
 class Activity(BaseModel):
     model_config = ConfigDict(frozen=True)
-    type: str  # e.g., "Walking", "Talking"
-    participants: list[str] = Field(default_factory=list)  # Entity IDs
-    objects: list[str] = Field(default_factory=list)  # Entity IDs
-    location: str | None = None
+    type: str  # e.g., "Moving", "AudioActiveOnScreen"
+    participants: list[str] = Field(default_factory=list)  # Entity IDs (track_ids)
+    start_time_s: float
+    end_time_s: float
+    confidence: float | None = None
     evidence: Evidence | None = None
+    location: str | None = None
 
 
 class Camera(BaseModel):
@@ -94,6 +96,50 @@ class DocumentUnderstanding(BaseModel):
     certainty: Certainty | None = None
 
 
+class DetectedObject(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    class_name: str
+    confidence: float
+    bounding_box: list[float] = Field(default_factory=list)  # [x1, y1, x2, y2]
+    frame: int
+    timestamp_s: float
+
+
+class TrackedAppearance(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    frame: int
+    timestamp_s: float
+    bounding_box: list[float] = Field(default_factory=list)  # [x1, y1, x2, y2]
+
+
+class TrackedObject(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    track_id: str
+    class_name: str
+    trajectory: list[TrackedAppearance] = Field(default_factory=list)
+
+
+class FaceDetection(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    frame: int
+    timestamp_s: float
+    bounding_box: list[float]  # [x1, y1, x2, y2]
+    confidence: float | None = None
+
+
+class TrackedFaceAppearance(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    frame: int
+    timestamp_s: float
+    bounding_box: list[float]  # [x1, y1, x2, y2]
+
+
+class TrackedFace(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    track_id: str
+    trajectory: list[TrackedFaceAppearance] = Field(default_factory=list)
+
+
 class VisualContext(BaseModel):
     model_config = ConfigDict(frozen=True)
     sequences: list[dict[str, Any]] = Field(default_factory=list)
@@ -101,8 +147,10 @@ class VisualContext(BaseModel):
     shots: list[dict[str, Any]] = Field(default_factory=list)
     frames: list[dict[str, Any]] = Field(default_factory=list)
     characters: list[Character] = Field(default_factory=list)
-    faces: list[dict[str, Any]] = Field(default_factory=list)
-    objects: list[dict[str, Any]] = Field(default_factory=list)
+    face_detections: list[FaceDetection] = Field(default_factory=list)
+    faces: list[TrackedFace] = Field(default_factory=list)
+    objects: list[DetectedObject] = Field(default_factory=list)
+    tracked_objects: list[TrackedObject] = Field(default_factory=list)
     activities: list[Activity] = Field(default_factory=list)
     motion: Motion | None = None
     camera: Camera | None = None

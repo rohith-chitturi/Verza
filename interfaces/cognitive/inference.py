@@ -1,4 +1,3 @@
-from typing import Any
 
 from pydantic import BaseModel
 
@@ -14,8 +13,9 @@ class InferenceProvider:
 
     def infer_structured(
         self,
-        context_data: dict[str, Any],
+        input_text: str,
         prompt: PromptAsset,
+        expected_schema: type[BaseModel],
         execution_context: ExecutionContext | None = None,
     ) -> BaseModel:
         raise NotImplementedError

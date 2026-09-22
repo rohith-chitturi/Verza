@@ -3,9 +3,13 @@ from dependency_injector.wiring import Provide, inject
 from capabilities.base import BaseCapability
 from capabilities.media_understanding.audio import AudioSegmentationCapability
 from capabilities.media_understanding.document import DocumentUnderstandingCapability
+from capabilities.media_understanding.face_detector import FaceDetectionCapability
+from capabilities.media_understanding.face_tracker import FaceTrackingCapability
 
 # Import the actual capabilities
 from capabilities.media_understanding.metadata import MetadataExtractionCapability
+from capabilities.media_understanding.object_detector import ObjectDetectionCapability
+from capabilities.media_understanding.object_tracker import ObjectTrackingCapability
 from capabilities.media_understanding.shot_detector import ShotDetectionCapability
 from contracts.schemas.context import AIContext
 from core.telemetry.logging import get_logger
@@ -45,23 +49,6 @@ class MockCharacterTrackingCapability(BaseCapability):
             )
         )
 
-
-class MockFaceTrackingCapability(BaseCapability):
-    @property
-    def name(self) -> str:
-        return "FaceTracking(Mock)"
-
-    def _execute(self, context: AIContext, trace_id: str, **kwargs) -> AIContext:
-        return context
-
-
-class MockObjectDetectionCapability(BaseCapability):
-    @property
-    def name(self) -> str:
-        return "ObjectDetection(Mock)"
-
-    def _execute(self, context: AIContext, trace_id: str, **kwargs) -> AIContext:
-        return context
 
 
 class MockActivitiesCapability(BaseCapability):
@@ -110,17 +97,23 @@ class MediaUnderstandingEngine:
         shot_cap: ShotDetectionCapability,
         doc_cap: DocumentUnderstandingCapability,
         audio_cap: AudioSegmentationCapability,
+        object_cap: ObjectDetectionCapability,
+        object_tracking_cap: ObjectTrackingCapability,
+        face_detection_cap: FaceDetectionCapability,
+        face_tracking_cap: FaceTrackingCapability,
     ):
         self.pipeline = [
             metadata_cap,  # 1. Video Metadata
             shot_cap,  # 2. Frames & Shots
             MockSceneSegmentationCapability(),  # 3. Scenes
             MockCharacterTrackingCapability(),  # 4. Characters
-            MockFaceTrackingCapability(),  # 5. Faces
-            MockObjectDetectionCapability(),  # 6. Objects
+            face_detection_cap,  # 5. Face Detection
+            face_tracking_cap,   # 5.5 Face Tracking
+            object_cap,  # 6. Objects
+            object_tracking_cap,  # 6.5 Object Tracking
             doc_cap,  # 7. Document Understanding (OCR)
-            MockActivitiesCapability(),  # 8. Activities
             audio_cap,  # 9. Audio Segmentation
+            container.activity_recognition_cap(),  # 10. Activities
             MockSemanticGraphCapability(),  # 10. Semantic Graph
             MockWorldSynthesisCapability(),  # 11. Synthesis
         ]
@@ -150,9 +143,15 @@ def run_m2_engine(
     shot_cap: ShotDetectionCapability = Provide["shot_cap"],
     doc_cap: DocumentUnderstandingCapability = Provide["doc_cap"],
     audio_cap: AudioSegmentationCapability = Provide["audio_cap"],
+    object_cap: ObjectDetectionCapability = Provide["object_cap"],
+    object_tracking_cap: ObjectTrackingCapability = Provide["object_tracking_cap"],
+    face_detection_cap: FaceDetectionCapability = Provide["face_detection_cap"],
+    face_tracking_cap: FaceTrackingCapability = Provide["face_tracking_cap"],
 ):
     context = AIContext(media_id="sample_media.mp4", workflow_id="w-123", language="en")
-    engine = MediaUnderstandingEngine(metadata_cap, shot_cap, doc_cap, audio_cap)
+    engine = MediaUnderstandingEngine(
+        metadata_cap, shot_cap, doc_cap, audio_cap, object_cap, object_tracking_cap, face_detection_cap, face_tracking_cap
+    )
 
     final_context = engine.execute(context)
 

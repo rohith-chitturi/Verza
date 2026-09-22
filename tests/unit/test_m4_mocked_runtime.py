@@ -19,7 +19,7 @@ class MockCapability:
         self.fail_times = fail_times
         self.executed = 0
         
-    def execute(self):
+    def execute(self, context=None, trace_id=None, **kwargs):
         self.executed += 1
         if self.should_fail or self.fail_times > 0:
             if self.fail_times > 0:

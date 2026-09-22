@@ -5,19 +5,33 @@ from sqlalchemy.orm import sessionmaker
 from capabilities.cognitive.memory_indexer import MemoryIndexerCapability
 from capabilities.cognitive.semantic_retrieval import SemanticRetrievalCapability
 from capabilities.cognitive.synthesis import SynthesisCapability
+from capabilities.media_understanding.activity_recognizer import (
+    ActivityRecognitionCapability,
+)
 from capabilities.media_understanding.audio import AudioSegmentationCapability
 from capabilities.media_understanding.document import DocumentUnderstandingCapability
+from capabilities.media_understanding.face_detector import FaceDetectionCapability
+from capabilities.media_understanding.face_tracker import FaceTrackingCapability
 from capabilities.media_understanding.metadata import MetadataExtractionCapability
+from capabilities.media_understanding.object_detector import ObjectDetectionCapability
+from capabilities.media_understanding.object_tracker import ObjectTrackingCapability
 from capabilities.media_understanding.shot_detector import ShotDetectionCapability
 from capabilities.speech_recognition import SpeechRecognitionCapability
 from core.event_bus.bus import InMemoryEventBus
 from core.registry.capability import CapabilityRegistry
+from providers.cognitive.heuristic_activity_recognizer import (
+    HeuristicActivityRecognizer,
+)
 from providers.media.ffmpeg.audio_provider import AudioSegmentationProvider
 from providers.media.ffmpeg.metadata_provider import FFmpegMetadataProvider
 from providers.memory.embedding.sentence_transformer import SentenceTransformerProvider
 from providers.speech.whisper.provider import WhisperRecognizer
 from providers.vision.easyocr.provider import EasyOCRProvider
+from providers.vision.opencv.face_detector import OpenCVFaceDetector
 from providers.vision.pyscenedetect.provider import PySceneDetectProvider
+from providers.vision.tracking.iou_face_tracker import IoUFaceTracker
+from providers.vision.tracking.iou_tracker import IoUObjectTracker
+from providers.vision.yolo.provider import YOLOObjectDetector
 from storage.catalog.memory_repository import PostgresMemoryRepository
 from storage.catalog.repository import LocalSnapshotRepository
 
@@ -74,6 +88,12 @@ class VerzaContainer(containers.DeclarativeContainer):
     """
     IoC container of Verza core services and providers.
     """
+    config = providers.Configuration()
+    config.vision.yolo_model.from_env("VERZA_YOLO_MODEL", "yolov8n.pt")
+    config.vision.iou_threshold.from_env("VERZA_TRACKER_IOU_THRESHOLD", 0.30)
+    config.vision.activity_motion_threshold.from_env("VERZA_ACTIVITY_MOTION_THRESHOLD", 0.05)
+    config.cognitive.vlm_model.from_env("VERZA_VLM_MODEL", "gemini-2.5-flash")
+    config.cognitive.reasoning_model.from_env("VERZA_REASONING_MODEL", "gemini-2.5-pro")
 
     # Core Infrastructure
     event_bus = providers.Singleton(InMemoryEventBus)
@@ -90,6 +110,14 @@ class VerzaContainer(containers.DeclarativeContainer):
     pyscenedetect_provider = providers.Singleton(PySceneDetectProvider)
     easyocr_provider = providers.Singleton(EasyOCRProvider)
     ffmpeg_audio_provider = providers.Singleton(AudioSegmentationProvider)
+    yolo_provider = providers.Singleton(YOLOObjectDetector, model_path=config.vision.yolo_model)
+    iou_tracker_provider = providers.Singleton(IoUObjectTracker, iou_threshold=config.vision.iou_threshold.as_float())
+    opencv_face_detector_provider = providers.Singleton(OpenCVFaceDetector)
+    iou_face_tracker_provider = providers.Singleton(IoUFaceTracker, iou_threshold=config.vision.iou_threshold.as_float())
+    heuristic_activity_recognizer_provider = providers.Singleton(
+        HeuristicActivityRecognizer, 
+        motion_threshold=config.vision.activity_motion_threshold.as_float()
+    )
 
     # Capabilities (M1)
     speech_recognition_capability = providers.Factory(
@@ -140,6 +168,26 @@ class VerzaContainer(containers.DeclarativeContainer):
         AudioSegmentationCapability, provider=ffmpeg_audio_provider
     )
 
+    object_cap = providers.Factory(
+        ObjectDetectionCapability, provider=yolo_provider
+    )
+
+    object_tracking_cap = providers.Factory(
+        ObjectTrackingCapability, provider=iou_tracker_provider
+    )
+
+    face_detection_cap = providers.Factory(
+        FaceDetectionCapability, provider=opencv_face_detector_provider
+    )
+
+    face_tracking_cap = providers.Factory(
+        FaceTrackingCapability, provider=iou_face_tracker_provider
+    )
+
+    activity_recognition_cap = providers.Factory(
+        ActivityRecognitionCapability, provider=heuristic_activity_recognizer_provider
+    )
+
     # Core State & Prompts (M3.1)
     from core.prompts.registry import PromptRegistry
     from core.state.journal import DeltaJournal
@@ -153,8 +201,13 @@ class VerzaContainer(containers.DeclarativeContainer):
 
     # Cognitive Providers (M3.1)
     from interfaces.cognitive.mock_vlm import MockVLMProvider
+    from providers.cognitive.gemini.provider import GeminiVLMProvider
 
     mock_vlm_provider = providers.Singleton(MockVLMProvider)
+    gemini_vlm_provider = providers.Singleton(GeminiVLMProvider, model_name=config.cognitive.vlm_model)
+
+    # Use ProviderPolicy or env var here? For now we can use gemini
+    vlm_provider = gemini_vlm_provider
 
     # Interpreters (M3.1)
     from capabilities.cognitive.activity_interpreter import ActivityInterpreter
@@ -165,15 +218,35 @@ class VerzaContainer(containers.DeclarativeContainer):
     character_interpreter = providers.Factory(CharacterInterpreter)
     activity_interpreter = providers.Factory(ActivityInterpreter)
 
+    from core.workflow.interpretation import InterpretationEngine
+    
+    interpretation_engine = providers.Factory(
+        InterpretationEngine,
+        interpreters=providers.List(
+            scene_interpreter,
+            character_interpreter,
+            activity_interpreter,
+        ),
+        vlm_provider=vlm_provider,
+        prompt_registry=prompt_registry,
+        validator=delta_validator,
+        merger=delta_merger,
+        journal=delta_journal,
+    )
+
     # State Consistency (M3.2)
     from core.state.consistency import ConsistencyChecker
 
     consistency_checker = providers.Singleton(ConsistencyChecker)
 
     # Inference Providers (M3.2)
+    from providers.inference.gemini.provider import GeminiInferenceProvider
     from providers.inference.mock_inference import MockInferenceProvider
 
     mock_inference_provider = providers.Singleton(MockInferenceProvider)
+    gemini_inference_provider = providers.Singleton(GeminiInferenceProvider, model_name=config.cognitive.reasoning_model)
+    
+    inference_provider = gemini_inference_provider
 
     # Reasoners (M3.2)
     from capabilities.cognitive.event_reasoner import EventReasoner
@@ -189,7 +262,7 @@ class VerzaContainer(containers.DeclarativeContainer):
 
     reasoning_engine = providers.Factory(
         ReasoningEngine,
-        inference_provider=mock_inference_provider,
+        inference_provider=inference_provider,
         intent_reasoner=intent_reasoner,
         relationship_reasoner=relationship_reasoner,
         event_reasoner=event_reasoner,
@@ -237,6 +310,10 @@ class VerzaContainer(containers.DeclarativeContainer):
             "shot_detection": shot_cap.provider,
             "document_understanding": doc_cap.provider,
             "audio_segmentation": audio_cap.provider,
+            "object_detection": object_cap.provider,
+            "object_tracking": object_tracking_cap.provider,
+            "face_detection": face_detection_cap.provider,
+            "face_tracking": face_tracking_cap.provider,
             "scene_interpretation": scene_interpreter.provider,
             "character_interpretation": character_interpreter.provider,
             "activity_interpretation": activity_interpreter.provider,

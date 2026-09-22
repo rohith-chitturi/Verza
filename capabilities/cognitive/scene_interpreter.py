@@ -44,9 +44,12 @@ class SceneInterpreter(BaseInterpreter):
         vlm_provider: VLMProvider,
     ) -> WorldStateDelta:
 
+        # Serialize evidence for VLM
+        input_text = evidence.model_dump_json(indent=2)
+
         # Invoke VLM
         output = cast(
-            SceneOutputSchema, vlm_provider.generate_structured(evidence, prompt)
+            SceneOutputSchema, vlm_provider.generate_structured(input_text, prompt, SceneOutputSchema)
         )
 
         # Build Delta

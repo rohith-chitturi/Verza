@@ -9,8 +9,26 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: verza
+          POSTGRES_PASSWORD: verza_password
+          POSTGRES_DB: verza_db
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Install System Dependencies (FFmpeg)
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
       
       - name: Install uv
         uses: astral-sh/setup-uv@v2
@@ -23,7 +41,7 @@ jobs:
           python-version: "3.11"
 
       - name: Sync Dependencies
-        run: uv sync
+        run: uv sync --all-extras
 
       - name: Lint with Ruff
         run: uv run ruff check .

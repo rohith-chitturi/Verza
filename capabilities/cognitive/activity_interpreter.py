@@ -49,8 +49,10 @@ class ActivityInterpreter(BaseInterpreter):
         parent_confidence: float = 1.0,
     ) -> WorldStateDelta:
 
+        input_text = evidence.model_dump_json(indent=2)
+
         output = cast(
-            ActivityOutputSchema, vlm_provider.generate_structured(evidence, prompt)
+            ActivityOutputSchema, vlm_provider.generate_structured(input_text, prompt, ActivityOutputSchema)
         )
 
         ops = []

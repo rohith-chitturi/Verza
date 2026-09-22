@@ -3,7 +3,6 @@ from typing import Protocol
 from pydantic import BaseModel
 
 from contracts.schemas.prompt import PromptAsset
-from contracts.schemas.world import Evidence
 
 
 class VLMProvider(Protocol):
@@ -13,9 +12,11 @@ class VLMProvider(Protocol):
     rather than returning free text.
     """
 
-    def generate_structured(self, evidence: Evidence, prompt: PromptAsset) -> BaseModel:
+    def generate_structured(
+        self, input_text: str, prompt: PromptAsset, expected_schema: type[BaseModel]
+    ) -> BaseModel:
         """
-        Processes visual/audio evidence through a VLM and returns a Pydantic object
-        matching prompt.expected_schema.
+        Processes textual evidence through a VLM and returns a Pydantic object
+        matching expected_schema.
         """
         ...
