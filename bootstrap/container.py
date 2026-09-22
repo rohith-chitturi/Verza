@@ -222,7 +222,7 @@ class VerzaContainer(containers.DeclarativeContainer):
     
     synthesis = providers.Factory(
         SynthesisCapability,
-        vlm_provider=mock_vlm_provider,
+        inference_provider=inference_provider,
     )
 
     # Capability Registry (M4)
