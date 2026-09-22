@@ -1,3 +1,4 @@
+import uuid
 from typing import Any
 
 from contracts.schemas.memory import (
@@ -10,6 +11,13 @@ from contracts.schemas.world import WorldState
 from interfaces.memory.embedding import EmbeddingInterface
 from storage.catalog.memory_repository import PostgresMemoryRepository
 
+VERZA_MEMORY_NAMESPACE = uuid.uuid5(uuid.NAMESPACE_DNS, "verza.ai")
+
+def _generate_memory_id(memory_type: str, canonical_content: str, start_time: float | None = None) -> str:
+    """Generate deterministic UUIDv5 for a memory."""
+    ts_str = f"{start_time:.3f}" if start_time is not None else "none"
+    canonical_str = f"{memory_type}:{canonical_content}:{ts_str}"
+    return str(uuid.uuid5(VERZA_MEMORY_NAMESPACE, canonical_str))
 
 class MemoryIndexerCapability:
     """
@@ -28,27 +36,36 @@ class MemoryIndexerCapability:
         """
         Extract memories from world_state and persist them.
         """
-        # We need provenance data. Normally this would be passed in context or derived from world_state.
         run_id = context.get("run_id") if context else None
         stage_run_id = context.get("stage_run_id") if context else None
         project_id = context.get("project_id") if context else None
         tenant_id = context.get("tenant_id") if context else None
+        world_state_id = context.get("world_state_id", str(uuid.uuid4())) if context else str(uuid.uuid4())
         
-        # 1. Index Episodic Memories (e.g. Activities, Audio Segments)
+        indexed_episodes = 0
+        indexed_semantics = 0
+
+        # 1. EPISODIC MEMORIES (Time-bound events and activities)
+        
+        # Activities
         for activity in world_state.visual.activities:
             content = f"Activity: {activity.type} involving {', '.join(activity.participants)}"
             if activity.location:
                 content += f" at {activity.location}"
-                
+            
+            start_t = activity.evidence.frames[0] if activity.evidence and activity.evidence.frames else 0.0
+            end_t = activity.evidence.frames[-1] if activity.evidence and activity.evidence.frames else start_t
+            
+            memory_id = _generate_memory_id("episodic", content, start_t)
+            
             prov = MemoryProvenance(
                 tenant_id=tenant_id,
                 project_id=project_id,
                 workflow_run_id=run_id,
                 stage_run_id=stage_run_id,
-                world_state_id=str(hash(world_state)),  # Mock ID for now
+                world_state_id=world_state_id,
                 source_entity_id=None,
-                source_event_id=None,
-                source_timestamp=activity.evidence.frames[0] if activity.evidence and activity.evidence.frames else 0.0,
+                source_timestamp=start_t,
                 provider=self._embedding_provider.model_name,
                 model=self._embedding_provider.model_name,
                 confidence=1.0,
@@ -56,12 +73,8 @@ class MemoryIndexerCapability:
             
             embedding = self._embedding_provider.embed(content)
             
-            # Simple assumption: activities without explicit temporal bounds are point-in-time
-            start_t = 0.0
-            end_t = 0.0
-            
             memory = EpisodicMemory(
-                id=f"ep-act-{hash(content)}",
+                id=memory_id,
                 content=content,
                 lifecycle=MemoryLifecycle.ACTIVE,
                 embedding_model=self._embedding_provider.model_name,
@@ -73,19 +86,60 @@ class MemoryIndexerCapability:
                 metadata={"embedding": embedding},
             )
             self._repository.save_episodic_memory(memory)
+            indexed_episodes += 1
 
-        # 2. Index Semantic Memories (e.g. Knowledge Graph Edges, Intentions)
-        for edge in world_state.semantic.relationships:
-            content = f"{edge.source} {edge.relation} {edge.target}"
+        # Events
+        for event in world_state.semantic.events:
+            content = f"Event: {event.type} involving {', '.join(event.participants)}. Causes: {', '.join(event.causes)}. Consequences: {', '.join(event.consequences)}"
+            start_t = float(event.start) if event.start else 0.0
+            end_t = float(event.end) if event.end else start_t
+            
+            memory_id = _generate_memory_id("episodic", content, start_t)
+            
             prov = MemoryProvenance(
                 tenant_id=tenant_id,
                 project_id=project_id,
                 workflow_run_id=run_id,
                 stage_run_id=stage_run_id,
-                world_state_id=str(hash(world_state)),
+                world_state_id=world_state_id,
+                source_entity_id=event.id,
+                source_timestamp=start_t,
+                provider=self._embedding_provider.model_name,
+                model=self._embedding_provider.model_name,
+                confidence=event.confidence,
+            )
+            
+            embedding = self._embedding_provider.embed(content)
+            
+            memory = EpisodicMemory(
+                id=memory_id,
+                content=content,
+                lifecycle=MemoryLifecycle.ACTIVE,
+                embedding_model=self._embedding_provider.model_name,
+                embedding_version="1.0",
+                start_time=start_t,
+                end_time=end_t,
+                entities=event.participants,
+                provenance=prov,
+                metadata={"embedding": embedding},
+            )
+            self._repository.save_episodic_memory(memory)
+            indexed_episodes += 1
+
+        # 2. SEMANTIC MEMORIES (Relationships, Concepts, Persistent Intentions)
+        
+        # Relationships
+        for edge in world_state.semantic.relationships:
+            content = f"{edge.source} {edge.relation} {edge.target}"
+            memory_id = _generate_memory_id("semantic", content)
+            
+            prov = MemoryProvenance(
+                tenant_id=tenant_id,
+                project_id=project_id,
+                workflow_run_id=run_id,
+                stage_run_id=stage_run_id,
+                world_state_id=world_state_id,
                 source_entity_id=edge.id,
-                source_event_id=None,
-                source_timestamp=None,
                 provider=self._embedding_provider.model_name,
                 model=self._embedding_provider.model_name,
                 confidence=edge.confidence,
@@ -94,7 +148,7 @@ class MemoryIndexerCapability:
             embedding = self._embedding_provider.embed(content)
             
             memory_semantic = SemanticMemory(
-                id=f"sem-rel-{edge.id}",
+                id=memory_id,
                 content=content,
                 lifecycle=MemoryLifecycle.ACTIVE,
                 embedding_model=self._embedding_provider.model_name,
@@ -105,5 +159,39 @@ class MemoryIndexerCapability:
                 metadata={"embedding": embedding, "properties": edge.properties},
             )
             self._repository.save_semantic_memory(memory_semantic)
+            indexed_semantics += 1
 
-        return {"status": "success", "indexed_episodes": len(world_state.visual.activities), "indexed_semantics": len(world_state.semantic.relationships)}
+        # Intentions
+        for intent in world_state.semantic.intentions:
+            content = f"{intent.actor} intends to {intent.intent} towards {intent.target}"
+            memory_id = _generate_memory_id("semantic", content)
+            
+            prov = MemoryProvenance(
+                tenant_id=tenant_id,
+                project_id=project_id,
+                workflow_run_id=run_id,
+                stage_run_id=stage_run_id,
+                world_state_id=world_state_id,
+                source_entity_id=None,
+                provider=self._embedding_provider.model_name,
+                model=self._embedding_provider.model_name,
+                confidence=intent.confidence,
+            )
+            
+            embedding = self._embedding_provider.embed(content)
+            
+            memory_semantic = SemanticMemory(
+                id=memory_id,
+                content=content,
+                lifecycle=MemoryLifecycle.ACTIVE,
+                embedding_model=self._embedding_provider.model_name,
+                embedding_version="1.0",
+                fact_type="intention",
+                entities=[x for x in [intent.actor, intent.target] if x is not None],
+                provenance=prov,
+                metadata={"embedding": embedding},
+            )
+            self._repository.save_semantic_memory(memory_semantic)
+            indexed_semantics += 1
+
+        return {"status": "success", "indexed_episodes": indexed_episodes, "indexed_semantics": indexed_semantics}
