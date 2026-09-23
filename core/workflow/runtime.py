@@ -19,28 +19,21 @@ class WorkflowRuntime:
         self._run_repo = run_repository
         self._dag_resolver = DAGResolver()
 
-    def start_run(self, workflow: Workflow, parent_run_id: str | None = None) -> str:
-        """Starts a workflow execution in the background."""
+    def create_run(self, workflow: Workflow, parent_run_id: str | None = None) -> str:
+        """Creates a workflow run entry in the database (PENDING)."""
         run_id = f"RUN-{uuid.uuid4().hex[:8].upper()}"
         version_id = f"{workflow.name}-v{workflow.version}"
         
         self._run_repo.create_run(run_id, version_id, parent_run_id=parent_run_id)
         self._run_repo.update_run_status(run_id, ExecutionState.QUEUED)
-        
-        # Fire and forget thread for M4 local baseline
-        thread = threading.Thread(target=self._execute_run, args=(run_id, workflow))
-        thread.start()
-        
         return run_id
 
-    def resume_run(self, run_id: str, workflow: Workflow) -> None:
-        """Resumes a paused or crashed run."""
+    def prepare_resume(self, run_id: str) -> None:
+        """Prepares a paused or crashed run to be resumed."""
         self._run_repo.update_run_status(run_id, ExecutionState.QUEUED)
-        thread = threading.Thread(target=self._execute_run, args=(run_id, workflow))
-        thread.start()
 
-    def replay_run(self, parent_run_id: str, workflow: Workflow, from_stage: str) -> str:
-        """Forks a run and restarts from a specific stage."""
+    def prepare_replay(self, parent_run_id: str, workflow: Workflow) -> str:
+        """Creates a new run referencing a parent run for replay."""
         run_id = f"RUN-{uuid.uuid4().hex[:8].upper()}"
         version_id = f"{workflow.name}-v{workflow.version}"
         
@@ -48,17 +41,13 @@ class WorkflowRuntime:
         self._run_repo.update_run_status(run_id, ExecutionState.QUEUED)
         
         # If replaying, we need to copy the latest world state from parent for now
-        # In a fully robust system we'd rebuild from CheckpointModel or DeltaJournal
         parent_state = self._run_repo.get_world_state(parent_run_id)
         if parent_state:
             self._run_repo.save_world_state(run_id, parent_state)
             
-        thread = threading.Thread(target=self._execute_run, args=(run_id, workflow, from_stage))
-        thread.start()
-        
         return run_id
 
-    def _execute_run(self, run_id: str, workflow: Workflow, replay_from_stage: str | None = None) -> None:
+    def execute_run(self, run_id: str, workflow: Workflow, replay_from_stage: str | None = None) -> None:
         logger.info(f"Starting workflow execution: {run_id}")
         self._run_repo.update_run_status(run_id, ExecutionState.RUNNING)
         

@@ -61,7 +61,7 @@ def test_m4_cognitive_pipeline_execution(test_runtime, repo, workflow_repo, test
     
     # Execute the workflow synchronously for testing
     try:
-        test_runtime._execute_run(run_id, workflow)
+        test_runtime.execute_run(run_id, workflow)
     except Exception as e:
         if "ENVIRONMENT DEPENDENCY FAILURE" in str(e):
             pytest.fail(f"Environment dependency missing for ffmpeg: {e}")
