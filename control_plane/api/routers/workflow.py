@@ -19,7 +19,7 @@ router = APIRouter(prefix="/api/v1")
 @inject
 def create_workflow(
     request: WorkflowCreateRequest,
-    workflow_service: WorkflowService = Depends(Provide["workflow_service"])
+    workflow_service: WorkflowService = Depends(Provide["workflow_service"]) # noqa: B008
 ):
     workflow_service.register_workflow(request.workflow)
     return WorkflowResponse(
@@ -33,7 +33,7 @@ def create_workflow(
 def get_workflow(
     name: str, 
     version: str,
-    workflow_service: WorkflowService = Depends(Provide["workflow_service"])
+    workflow_service: WorkflowService = Depends(Provide["workflow_service"]) # noqa: B008
 ):
     workflow = workflow_service.get_workflow(name, version)
     return WorkflowCreateRequest(workflow=workflow)
@@ -42,7 +42,7 @@ def get_workflow(
 @inject
 def trigger_run(
     request: RunCreateRequest,
-    workflow_service: WorkflowService = Depends(Provide["workflow_service"])
+    workflow_service: WorkflowService = Depends(Provide["workflow_service"]) # noqa: B008
 ):
     run_id = workflow_service.start_run(request.workflow_name, request.version)
     return RunResponse(
@@ -56,7 +56,7 @@ def trigger_run(
 @inject
 def get_run_status(
     run_id: str,
-    workflow_service: WorkflowService = Depends(Provide["workflow_service"])
+    workflow_service: WorkflowService = Depends(Provide["workflow_service"]) # noqa: B008
 ):
     status_dict = workflow_service.get_run_status(run_id)
     return RunStatusResponse(**status_dict)
@@ -65,7 +65,7 @@ def get_run_status(
 @inject
 def get_run_stages(
     run_id: str,
-    workflow_service: WorkflowService = Depends(Provide["workflow_service"])
+    workflow_service: WorkflowService = Depends(Provide["workflow_service"]) # noqa: B008
 ):
     stages = workflow_service.get_stage_runs(run_id)
     return [StageRunResponse(**s) for s in stages]
@@ -74,7 +74,7 @@ def get_run_stages(
 @inject
 def get_run_world_state(
     run_id: str,
-    workflow_service: WorkflowService = Depends(Provide["workflow_service"])
+    workflow_service: WorkflowService = Depends(Provide["workflow_service"]) # noqa: B008
 ):
     state = workflow_service.get_world_state(run_id)
     return WorldStateResponse(world_state=state)
@@ -83,7 +83,7 @@ def get_run_world_state(
 @inject
 def pause_run(
     run_id: str,
-    workflow_service: WorkflowService = Depends(Provide["workflow_service"])
+    workflow_service: WorkflowService = Depends(Provide["workflow_service"]) # noqa: B008
 ):
     workflow_service.pause_run(run_id)
     return {"status": "pause_requested"}
@@ -92,7 +92,7 @@ def pause_run(
 @inject
 def resume_run(
     run_id: str,
-    workflow_service: WorkflowService = Depends(Provide["workflow_service"])
+    workflow_service: WorkflowService = Depends(Provide["workflow_service"]) # noqa: B008
 ):
     workflow_service.resume_run(run_id)
     return {"status": "resume_requested"}
@@ -101,7 +101,7 @@ def resume_run(
 @inject
 def cancel_run(
     run_id: str,
-    workflow_service: WorkflowService = Depends(Provide["workflow_service"])
+    workflow_service: WorkflowService = Depends(Provide["workflow_service"]) # noqa: B008
 ):
     workflow_service.cancel_run(run_id)
     return {"status": "cancel_requested"}
@@ -111,7 +111,7 @@ def cancel_run(
 def replay_run(
     run_id: str,
     request: ReplayRequest,
-    workflow_service: WorkflowService = Depends(Provide["workflow_service"])
+    workflow_service: WorkflowService = Depends(Provide["workflow_service"]) # noqa: B008
 ):
     new_run_id = workflow_service.replay_run(run_id, request.from_stage)
     # Fetch details to populate response
