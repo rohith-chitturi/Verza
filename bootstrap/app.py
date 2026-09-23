@@ -2,6 +2,7 @@ from fastapi import FastAPI, Response
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
 from bootstrap.container import VerzaContainer
+from control_plane.api.errors import register_exception_handlers
 from control_plane.api.routers import workflow
 from core.telemetry.logging import configure_logging, get_logger
 
@@ -13,6 +14,7 @@ app = FastAPI(title="Verza Platform API")
 container = VerzaContainer()
 app.container = container  # type: ignore
 
+register_exception_handlers(app)
 app.include_router(workflow.router)
 
 
