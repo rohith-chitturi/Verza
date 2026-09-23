@@ -14,6 +14,8 @@ app = FastAPI(title="Verza Platform API")
 container = VerzaContainer()
 app.container = container  # type: ignore
 
+container.wire(modules=[workflow])
+
 register_exception_handlers(app)
 app.include_router(workflow.router)
 

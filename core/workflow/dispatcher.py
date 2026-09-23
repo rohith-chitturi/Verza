@@ -24,7 +24,7 @@ class InProcessExecutionDispatcher(ExecutionDispatcher):
     def dispatch(self, run_id: str, workflow: Workflow, replay_from_stage: str | None = None) -> None:
         # Spin up a thread to hide the blocking execution from the API
         thread = threading.Thread(
-            target=self._runtime._execute_run, 
+            target=self._runtime.execute_run, 
             args=(run_id, workflow, replay_from_stage)
         )
         thread.start()

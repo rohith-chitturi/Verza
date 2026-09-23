@@ -19,22 +19,21 @@ class ControlledWaitCapability:
     def __init__(self, event: threading.Event):
         self.event = event
 
-    def execute(self, *args, **kwargs):
+    def execute(self, context=None, **kwargs):
         # Block until the test sets the event
         self.event.wait(timeout=5.0)
-        return ExecutionResult(
-            success=True,
-            duration_ms=100,
-            provider="test_wait",
-            model="wait",
-            metadata={"status": "waited"}
-        )
+        return context
 
 
 @pytest.fixture
 def sync_db_engine():
     from sqlalchemy import create_engine
-    engine = create_engine("sqlite:///:memory:")
+    from sqlalchemy.pool import StaticPool
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool
+    )
     Base.metadata.create_all(engine)
     return engine
 
@@ -54,6 +53,8 @@ def container(sync_db_engine):
 @pytest.fixture
 def test_client(container):
     app.container = container
+    from control_plane.api.routers import workflow
+    container.wire(modules=[workflow])
     with TestClient(app) as client:
         yield client
 
@@ -69,19 +70,21 @@ def test_api_lifecycle_with_pause_resume(test_client, container):
 
     workflow_payload = {
         "workflow": {
+            "id": "test_pause_resume_wf",
             "name": "test_pause_resume",
             "version": "1.0",
-            "description": "Test deterministic pause",
             "stages": [
                 {
                     "id": "stage1",
                     "capability": "wait_stage",
-                    "dependencies": []
+                    "provider_policy": {"primary": "wait_stage"},
+                    "depends_on": []
                 },
                 {
                     "id": "stage2",
-                    "capability": "wait_stage", # Another wait just in case
-                    "dependencies": ["stage1"]
+                    "capability": "wait_stage",
+                    "provider_policy": {"primary": "wait_stage"},
+                    "depends_on": ["stage1"]
                 }
             ]
         }
@@ -89,7 +92,7 @@ def test_api_lifecycle_with_pause_resume(test_client, container):
 
     # 1. Register Workflow
     response = test_client.post("/api/v1/workflows", json=workflow_payload)
-    assert response.status_code == 201
+    assert response.status_code == 201, f"Validation failed: {response.text}"
     assert response.json()["name"] == "test_pause_resume"
 
     # 2. Start Run (202 Accepted)
@@ -97,7 +100,7 @@ def test_api_lifecycle_with_pause_resume(test_client, container):
         "workflow_name": "test_pause_resume",
         "version": "1.0"
     })
-    assert response.status_code == 202
+    assert response.status_code == 202, f"Failed to start run: {response.text}"
     run_id = response.json()["run_id"]
 
     # At this point, the thread is started and blocked in stage1
@@ -141,6 +144,11 @@ def test_api_lifecycle_with_pause_resume(test_client, container):
 
 
 def test_cli_lifecycle_commands(container, tmp_path):
+    wait_event = threading.Event()
+    wait_cap = ControlledWaitCapability(wait_event)
+    registry = container.capability_registry()
+    registry._resolvers["wait_stage"] = lambda: wait_cap
+
     # This is a bit tricky as CLI creates its own container by default,
     # but we can monkey-patch tools.cli.VerzaContainer to return ours
     import tools.cli
@@ -148,21 +156,25 @@ def test_cli_lifecycle_commands(container, tmp_path):
     
     # Create dummy workflow file
     workflow_yaml = """
+id: cli_test_wf
 name: cli_test
-version: 1.0
-description: CLI Test
-stages: []
+version: '1.0'
+stages:
+  - id: stage1
+    capability: wait_stage
+    provider_policy:
+      primary: wait_stage
 """
     wf_file = tmp_path / "cli_workflow.yaml"
     wf_file.write_text(workflow_yaml)
     
     # Validate
-    result = runner.invoke(cli_app, ["validate", str(wf_file)])
+    result = runner.invoke(cli_app, ["validate", str(wf_file)], catch_exceptions=False)
     assert result.exit_code == 0
     assert "Workflow is valid" in result.stdout
     
     # Run
-    result = runner.invoke(cli_app, ["run", str(wf_file)])
+    result = runner.invoke(cli_app, ["run", str(wf_file)], catch_exceptions=False)
     assert result.exit_code == 0
     assert "Workflow dispatched" in result.stdout
     
@@ -172,15 +184,22 @@ stages: []
     assert match
     run_id = match.group(1)
     
+    # Give it a moment to start
+    import time
+    time.sleep(0.1)
+    
     # Status
-    result = runner.invoke(cli_app, ["status", run_id])
+    result = runner.invoke(cli_app, ["status", run_id], catch_exceptions=False)
     assert result.exit_code == 0
     assert "Status:" in result.stdout
     
     # Pause
-    result = runner.invoke(cli_app, ["pause", run_id])
+    result = runner.invoke(cli_app, ["pause", run_id], catch_exceptions=False)
     assert result.exit_code == 0
     
+    # Unblock the wait stage so the thread can terminate gracefully
+    wait_event.set()
+    
     # Cancel
-    result = runner.invoke(cli_app, ["cancel", run_id])
+    result = runner.invoke(cli_app, ["cancel", run_id], catch_exceptions=False)
     assert result.exit_code == 0
