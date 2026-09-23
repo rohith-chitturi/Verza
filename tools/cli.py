@@ -5,59 +5,144 @@ import yaml
 
 from bootstrap.container import VerzaContainer
 from contracts.schemas.workflow import Workflow
-from core.workflow.runtime import WorkflowRuntime
-from storage.catalog.sql_repository import RunSqlRepository
+from control_plane.application.errors import DomainError
+from control_plane.application.workflow_service import WorkflowService
+from storage.models.runtime import Base
 
 app = typer.Typer(help="Verza Platform CLI")
 
-# Global container init (mocked here, should be proper DI)
-container = VerzaContainer()
+
+def get_service() -> WorkflowService:
+    container = VerzaContainer()
+    # For CLI prototype, ensure models are created if using a local DB
+    # (If using real postgres, alembic handles this, but we'll do this just in case)
+    engine = container.db_engine()
+    Base.metadata.create_all(engine)
+    return container.workflow_service()
+
+
+@app.command()
+def validate(
+    workflow_path: Path = typer.Argument(..., help="Path to workflow YAML"),  # noqa: B008
+):
+    """Validates a workflow definition without executing it."""
+    if not workflow_path.exists():
+        typer.secho(f"Workflow file not found: {workflow_path}", fg=typer.colors.RED)
+        raise typer.Exit(1)
+
+    with open(workflow_path) as f:
+        data = yaml.safe_load(f)
+        try:
+            definition = Workflow(**data)
+            typer.secho(f"Workflow is valid: {definition.name} (v{definition.version})", fg=typer.colors.GREEN)
+        except Exception as e:  # noqa: BLE001
+            typer.secho(f"Validation failed: {e}", fg=typer.colors.RED)
+            raise typer.Exit(1)
+
 
 @app.command()
 def run(
     workflow_path: Path = typer.Argument(..., help="Path to workflow YAML"),  # noqa: B008
-    resume_from: str = typer.Option(None, "--resume-from", help="Run ID to resume from"),
 ):
-    """Executes a workflow definition."""
+    """Registers and starts a workflow execution."""
     if not workflow_path.exists():
         typer.secho(f"Workflow file not found: {workflow_path}", fg=typer.colors.RED)
         raise typer.Exit(1)
-        
-    with open(workflow_path, "r") as f:
+
+    with open(workflow_path) as f:
         data = yaml.safe_load(f)
         definition = Workflow(**data)
-        
-    typer.secho(f"Loaded workflow: {definition.name} (v{definition.version})", fg=typer.colors.GREEN)
+
+    service = get_service()
     
-    # Normally we'd fetch this from container
-    # runtime = container.workflow_runtime()
-    # Dummy session factory for prototype
-    from sqlalchemy import create_engine
-    from sqlalchemy.orm import sessionmaker
-    engine = create_engine("sqlite:///:memory:")
-    from storage.models.runtime import Base
-    Base.metadata.create_all(engine)
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    
-    repo = RunSqlRepository(SessionLocal)
-    runtime = WorkflowRuntime(capability_registry=container.capability_registry(), run_repository=repo)
-    
-    if resume_from:
-        typer.secho(f"Resuming from Run ID: {resume_from}", fg=typer.colors.YELLOW)
-        # Logic to resume
-        run_id = runtime.start_run(definition, parent_run_id=resume_from)
-    else:
-        typer.secho("Starting new workflow execution...", fg=typer.colors.BLUE)
-        run_id = runtime.start_run(definition)
-        
-    typer.secho(f"Workflow dispatched. Run ID: {run_id}", fg=typer.colors.GREEN)
+    try:
+        # Register definition if not exists
+        try:
+            service.register_workflow(definition)
+            typer.secho(f"Registered workflow: {definition.name} (v{definition.version})", fg=typer.colors.GREEN)
+        except DomainError:
+            typer.secho(f"Workflow {definition.name} (v{definition.version}) already registered.", fg=typer.colors.YELLOW)
+            
+        typer.secho("Starting workflow execution...", fg=typer.colors.BLUE)
+        run_id = service.start_run(definition.name, definition.version)
+        typer.secho(f"Workflow dispatched. Run ID: {run_id}", fg=typer.colors.GREEN)
+    except Exception as e:  # noqa: BLE001
+        typer.secho(f"Failed to start run: {e}", fg=typer.colors.RED)
+        raise typer.Exit(1)
+
 
 @app.command()
-def status(run_id: str):
+def status(
+    run_id: str = typer.Argument(..., help="Run ID to check"),
+):
     """Gets the status of a workflow run."""
-    typer.secho(f"Fetching status for {run_id}...", fg=typer.colors.BLUE)
-    # repo.get_run(run_id)
-    typer.secho("Status: RUNNING", fg=typer.colors.GREEN)
+    service = get_service()
+    try:
+        typer.secho(f"Fetching status for {run_id}...", fg=typer.colors.BLUE)
+        status_info = service.get_run_status(run_id)
+        typer.secho(f"Status: {status_info['status']}", fg=typer.colors.GREEN)
+        typer.secho(f"Workflow: {status_info['workflow_version_id']}")
+    except DomainError as e:
+        typer.secho(f"Error: {e}", fg=typer.colors.RED)
+        raise typer.Exit(1)
+
+
+@app.command()
+def pause(
+    run_id: str = typer.Argument(..., help="Run ID to pause"),
+):
+    """Requests a cooperative pause for a workflow run."""
+    service = get_service()
+    try:
+        service.pause_run(run_id)
+        typer.secho(f"Pause requested for run {run_id}.", fg=typer.colors.YELLOW)
+    except DomainError as e:
+        typer.secho(f"Error: {e}", fg=typer.colors.RED)
+        raise typer.Exit(1)
+
+
+@app.command()
+def resume(
+    run_id: str = typer.Argument(..., help="Run ID to resume"),
+):
+    """Resumes a paused workflow run."""
+    service = get_service()
+    try:
+        service.resume_run(run_id)
+        typer.secho(f"Resume requested for run {run_id}.", fg=typer.colors.GREEN)
+    except DomainError as e:
+        typer.secho(f"Error: {e}", fg=typer.colors.RED)
+        raise typer.Exit(1)
+
+
+@app.command()
+def cancel(
+    run_id: str = typer.Argument(..., help="Run ID to cancel"),
+):
+    """Cancels a workflow run."""
+    service = get_service()
+    try:
+        service.cancel_run(run_id)
+        typer.secho(f"Cancel requested for run {run_id}.", fg=typer.colors.RED)
+    except DomainError as e:
+        typer.secho(f"Error: {e}", fg=typer.colors.RED)
+        raise typer.Exit(1)
+
+
+@app.command()
+def replay(
+    run_id: str = typer.Argument(..., help="Run ID to replay"),
+    from_stage: str = typer.Option(..., "--from-stage", help="Stage to replay from"),
+):
+    """Forks a run and restarts from a specific stage."""
+    service = get_service()
+    try:
+        new_run_id = service.replay_run(run_id, from_stage)
+        typer.secho(f"Replay dispatched. New Run ID: {new_run_id}", fg=typer.colors.GREEN)
+    except DomainError as e:
+        typer.secho(f"Error: {e}", fg=typer.colors.RED)
+        raise typer.Exit(1)
+
 
 if __name__ == "__main__":
     app()

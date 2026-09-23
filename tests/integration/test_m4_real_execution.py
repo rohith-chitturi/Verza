@@ -58,7 +58,7 @@ def test_m2_real_execution(real_runtime, repo, workflow_repo, real_media_file):
     
     # We will trigger the run.
     try:
-        real_runtime._execute_run(run_id, workflow)
+        real_runtime.execute_run(run_id, workflow)
     except Exception as e:
         # If the environment lacks FFmpeg, the FFmpegMetadataProvider will raise a RuntimeError.
         # This complies with: "The tests should fail clearly when required infrastructure is unavailable."

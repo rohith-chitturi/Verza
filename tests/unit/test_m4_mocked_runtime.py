@@ -93,7 +93,7 @@ def test_dag_integration(runtime, repo):
     repo.create_run(run_id, "media_cognition-v1.0")
     repo.update_run_status(run_id, ExecutionState.QUEUED)
     
-    runtime._execute_run(run_id, workflow)
+    runtime.execute_run(run_id, workflow)
     
     run = repo.get_run(run_id)
     assert run.status == ExecutionState.COMPLETED.value
@@ -120,7 +120,7 @@ def test_failure_retry_fallback(runtime, repo):
     repo.create_run(run_id, "retry_test-v1.0")
     repo.update_run_status(run_id, ExecutionState.QUEUED)
     
-    runtime._execute_run(run_id, workflow)
+    runtime.execute_run(run_id, workflow)
     
     run = repo.get_run(run_id)
     assert run.status == ExecutionState.COMPLETED.value # It failed 2 times, succeeded on 3rd attempt
@@ -157,7 +157,7 @@ def test_crash_resume(runtime, repo):
     
     # We resume it now:
     repo.update_run_status(run_id, ExecutionState.QUEUED)
-    runtime._execute_run(run_id, workflow)
+    runtime.execute_run(run_id, workflow)
     
     run = repo.get_run(run_id)
     assert run.status == ExecutionState.COMPLETED.value
@@ -183,7 +183,7 @@ def test_replay_execution(runtime, repo):
     run_id = "REPLAY-RUN-OLD"
     repo.create_run(run_id, "replay_test-v1.0")
     repo.update_run_status(run_id, ExecutionState.QUEUED)
-    runtime._execute_run(run_id, workflow) # Run 1 finishes completely
+    runtime.execute_run(run_id, workflow) # Run 1 finishes completely
     
     run_old = repo.get_run(run_id)
     assert run_old.status == ExecutionState.COMPLETED.value
@@ -193,7 +193,7 @@ def test_replay_execution(runtime, repo):
     repo.create_run(new_run_id, "replay_test-v1.0", parent_run_id=run_id)
     repo.update_run_status(new_run_id, ExecutionState.QUEUED)
     
-    runtime._execute_run(new_run_id, workflow, replay_from_stage="m3_2")
+    runtime.execute_run(new_run_id, workflow, replay_from_stage="m3_2")
     
     run_new = repo.get_run(new_run_id)
     assert run_new.status == ExecutionState.COMPLETED.value

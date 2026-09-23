@@ -34,6 +34,10 @@ from providers.vision.tracking.iou_tracker import IoUObjectTracker
 from providers.vision.yolo.provider import YOLOObjectDetector
 from storage.catalog.memory_repository import PostgresMemoryRepository
 from storage.catalog.repository import LocalSnapshotRepository
+from storage.catalog.sql_repository import (
+    RunSqlRepository,
+    WorkflowSqlRepository,
+)
 
 
 # Fake providers for M1
@@ -290,6 +294,36 @@ class VerzaContainer(containers.DeclarativeContainer):
     db_engine = providers.Singleton(create_engine, "postgresql+psycopg://verza:verza_password@localhost:5432/verza_db")
     db_session_factory = providers.Singleton(sessionmaker, bind=db_engine)
 
+    # Workflow Control Plane (M4.1)
+    workflow_repository = providers.Singleton(
+        WorkflowSqlRepository, session_factory=db_session_factory
+    )
+    run_repository = providers.Singleton(
+        RunSqlRepository, session_factory=db_session_factory
+    )
+    
+    from core.workflow.runtime import WorkflowRuntime
+    workflow_runtime = providers.Singleton(
+        WorkflowRuntime,
+        capability_registry=providers.DependenciesContainer(), # Will be wired below
+        run_repository=run_repository
+    )
+
+    from core.workflow.dispatcher import InProcessExecutionDispatcher
+    execution_dispatcher = providers.Singleton(
+        InProcessExecutionDispatcher,
+        runtime=workflow_runtime
+    )
+
+    from control_plane.application.workflow_service import WorkflowService
+    workflow_service = providers.Factory(
+        WorkflowService,
+        workflow_repo=workflow_repository,
+        run_repo=run_repository,
+        runtime=workflow_runtime,
+        dispatcher=execution_dispatcher
+    )
+
     memory_repository = providers.Singleton(PostgresMemoryRepository, session_factory=db_session_factory)
     embedding_provider = providers.Singleton(SentenceTransformerProvider, model_name="all-MiniLM-L6-v2")
 
@@ -343,3 +377,6 @@ class VerzaContainer(containers.DeclarativeContainer):
             "memory_synthesis": memory_synthesis_capability.provider
         })
     )
+    
+    # Inject the registry back into the runtime
+    workflow_runtime.add_kwargs(capability_registry=capability_registry)
