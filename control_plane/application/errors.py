@@ -1,6 +1,5 @@
 class DomainError(Exception):
     """Base class for all application/domain errors."""
-    pass
 
 
 class WorkflowNotFoundError(DomainError):

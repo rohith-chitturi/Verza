@@ -1,6 +1,5 @@
 from typing import Any
 
-from contracts.schemas.runtime import ExecutionState
 from contracts.schemas.workflow import Workflow
 from control_plane.application.errors import (
     DuplicateWorkflowError,

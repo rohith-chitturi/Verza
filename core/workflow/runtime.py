@@ -1,4 +1,3 @@
-import threading
 import uuid
 
 from contracts.schemas.runtime import ExecutionState
