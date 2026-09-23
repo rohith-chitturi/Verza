@@ -64,8 +64,10 @@ def test_api_lifecycle_with_pause_resume(test_client, container):
     wait_cap = ControlledWaitCapability(wait_event)
     
     registry = container.capability_registry()
+    def resolve_wait_cap_api():
+        return wait_cap
     # Temporarily add our test capability
-    registry._resolvers["wait_stage"] = lambda: wait_cap
+    registry._resolvers["wait_stage"] = resolve_wait_cap_api
 
     workflow_payload = {
         "workflow": {
@@ -146,12 +148,16 @@ def test_cli_lifecycle_commands(container, tmp_path):
     wait_event = threading.Event()
     wait_cap = ControlledWaitCapability(wait_event)
     registry = container.capability_registry()
-    registry._resolvers["wait_stage"] = lambda: wait_cap
+    def resolve_wait_cap():
+        return wait_cap
+    registry._resolvers["wait_stage"] = resolve_wait_cap
 
     # This is a bit tricky as CLI creates its own container by default,
     # but we can monkey-patch tools.cli.VerzaContainer to return ours
     import tools.cli
-    tools.cli.VerzaContainer = lambda: container
+    def mock_container():
+        return container
+    tools.cli.VerzaContainer = mock_container
     
     # Create dummy workflow file
     workflow_yaml = """
