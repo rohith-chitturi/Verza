@@ -7,7 +7,6 @@ from typer.testing import CliRunner
 
 from bootstrap.app import app
 from bootstrap.container import VerzaContainer
-from contracts.schemas.result import ExecutionResult
 from contracts.schemas.runtime import ExecutionState
 from storage.models.runtime import Base
 from tools.cli import app as cli_app

@@ -2,7 +2,6 @@ from pathlib import Path
 
 import typer
 import yaml
-from dependency_injector.wiring import Provide, inject
 
 from bootstrap.container import VerzaContainer
 from contracts.schemas.workflow import Workflow
@@ -36,7 +35,7 @@ def validate(
         try:
             definition = Workflow(**data)
             typer.secho(f"Workflow is valid: {definition.name} (v{definition.version})", fg=typer.colors.GREEN)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             typer.secho(f"Validation failed: {e}", fg=typer.colors.RED)
             raise typer.Exit(1)
 
@@ -67,14 +66,14 @@ def run(
         typer.secho("Starting workflow execution...", fg=typer.colors.BLUE)
         run_id = service.start_run(definition.name, definition.version)
         typer.secho(f"Workflow dispatched. Run ID: {run_id}", fg=typer.colors.GREEN)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         typer.secho(f"Failed to start run: {e}", fg=typer.colors.RED)
         raise typer.Exit(1)
 
 
 @app.command()
 def status(
-    run_id: str = typer.Argument(..., help="Run ID to check"),  # noqa: B008
+    run_id: str = typer.Argument(..., help="Run ID to check"),
 ):
     """Gets the status of a workflow run."""
     service = get_service()
@@ -90,7 +89,7 @@ def status(
 
 @app.command()
 def pause(
-    run_id: str = typer.Argument(..., help="Run ID to pause"),  # noqa: B008
+    run_id: str = typer.Argument(..., help="Run ID to pause"),
 ):
     """Requests a cooperative pause for a workflow run."""
     service = get_service()
@@ -104,7 +103,7 @@ def pause(
 
 @app.command()
 def resume(
-    run_id: str = typer.Argument(..., help="Run ID to resume"),  # noqa: B008
+    run_id: str = typer.Argument(..., help="Run ID to resume"),
 ):
     """Resumes a paused workflow run."""
     service = get_service()
@@ -118,7 +117,7 @@ def resume(
 
 @app.command()
 def cancel(
-    run_id: str = typer.Argument(..., help="Run ID to cancel"),  # noqa: B008
+    run_id: str = typer.Argument(..., help="Run ID to cancel"),
 ):
     """Cancels a workflow run."""
     service = get_service()
@@ -132,7 +131,7 @@ def cancel(
 
 @app.command()
 def replay(
-    run_id: str = typer.Argument(..., help="Run ID to replay"),  # noqa: B008
+    run_id: str = typer.Argument(..., help="Run ID to replay"),
     from_stage: str = typer.Option(..., "--from-stage", help="Stage to replay from"),
 ):
     """Forks a run and restarts from a specific stage."""

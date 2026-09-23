@@ -47,7 +47,7 @@ def test_transaction_rollback_on_failure(runtime, repo, workflow_repo, session_f
     
     # We attempt to execute it. The stage will fail.
     # The runtime should catch the error, update the state to FAILED, and the DB should remain consistent.
-    runtime._execute_run(run_id, workflow)
+    runtime.execute_run(run_id, workflow)
     
     # Open a fresh session to read back
     with session_factory():
@@ -90,7 +90,7 @@ def test_resume_preserves_postgres_state(runtime, repo, workflow_repo):
     repo.update_run_status(run_id, ExecutionState.QUEUED)
     
     # Run the workflow. S1 should be skipped, S2 should execute and complete.
-    runtime._execute_run(run_id, workflow)
+    runtime.execute_run(run_id, workflow)
     
     run = repo.get_run(run_id)
     assert run.status == ExecutionState.COMPLETED.value
@@ -117,7 +117,7 @@ def test_replay_with_postgres(runtime, repo, workflow_repo):
     old_run_id = "RUN-OLD-PG"
     repo.create_run(old_run_id, f"{workflow.name}-v{workflow.version}")
     repo.update_run_status(old_run_id, ExecutionState.QUEUED)
-    runtime._execute_run(old_run_id, workflow)
+    runtime.execute_run(old_run_id, workflow)
     
     assert repo.get_run(old_run_id).status == ExecutionState.COMPLETED.value
     
@@ -126,7 +126,7 @@ def test_replay_with_postgres(runtime, repo, workflow_repo):
     repo.update_run_status(new_run_id, ExecutionState.QUEUED)
     
     # Replay from s2
-    runtime._execute_run(new_run_id, workflow, replay_from_stage="s2")
+    runtime.execute_run(new_run_id, workflow, replay_from_stage="s2")
     
     new_run = repo.get_run(new_run_id)
     assert new_run.status == ExecutionState.COMPLETED.value
