@@ -12,6 +12,7 @@ logger = get_logger("bootstrap.app")
 
 from contextlib import asynccontextmanager
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     yield

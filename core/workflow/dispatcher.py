@@ -1,11 +1,10 @@
 import threading
 from abc import ABC, abstractmethod
-from typing import Dict
 
-from contracts.schemas.workflow import Workflow
 from contracts.schemas.execution import ExecutionContext
-from core.workflow.runtime import WorkflowRuntime
+from contracts.schemas.workflow import Workflow
 from core.telemetry.logging import get_logger
+from core.workflow.runtime import WorkflowRuntime
 
 logger = get_logger("workflow.dispatcher")
 
@@ -42,8 +41,8 @@ class InProcessExecutionDispatcher(ExecutionDispatcher):
     """
     def __init__(self, runtime: WorkflowRuntime):
         self._runtime = runtime
-        self._active_contexts: Dict[str, ExecutionContext] = {}
-        self._active_threads: Dict[str, threading.Thread] = {}
+        self._active_contexts: dict[str, ExecutionContext] = {}
+        self._active_threads: dict[str, threading.Thread] = {}
         self._lock = threading.Lock()
 
     def dispatch(self, run_id: str, workflow: Workflow, replay_from_stage: str | None = None) -> None:
@@ -89,7 +88,7 @@ class InProcessExecutionDispatcher(ExecutionDispatcher):
     def shutdown(self, timeout_seconds: int = 10) -> None:
         logger.info("Initiating graceful shutdown of execution dispatcher")
         with self._lock:
-            for run_id, context in self._active_contexts.items():
+            for context in self._active_contexts.values():
                 context.cancellation.cancel()
             threads_to_wait = list(self._active_threads.values())
             

@@ -155,7 +155,10 @@ class WorkflowRuntime:
                             logger.info(f"Stage {stage_id} completed successfully via {provider}.")
                             success = True
                         except Exception as e:  # noqa: BLE001
-                            from contracts.schemas.execution import CancelledError, PauseRequested
+                            from contracts.schemas.execution import (
+                                CancelledError,
+                                PauseRequested,
+                            )
                             if isinstance(e, CancelledError):
                                 logger.info(f"Stage {stage_id} cancelled cooperatively.")
                                 self._run_repo.update_stage_status(stage_run_id, ExecutionState.CANCELLED)

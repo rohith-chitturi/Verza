@@ -1,8 +1,7 @@
 import os
+from typing import Any
 
 import cv2
-
-from typing import Any
 
 from contracts.schemas.world import DetectedObject
 from core.telemetry.logging import get_logger

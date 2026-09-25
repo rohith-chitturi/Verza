@@ -6,7 +6,9 @@
   - YOLO object detection decoupled from pure-Python greedy IoU tracking.
   - OpenCV Haar face detection decoupled from IoU tracking.
   - **Heuristic Activity Recognition** synthesizes `Moving` and `AudioActiveOnScreen` without heavy ML.
-- **M3.1 (Context & Prompts):** `WIP`. DeltaJournal and PromptRegistry built. Needs VLM wiring.
+- **M3 (Sensemaking / Context):** `FROZEN`. Complete Interpretation, Reasoning, and Memory DAG nodes.
+- **M4.1 (Control Plane):** `FROZEN`. FastAPI, Typer CLI, and ExecutionDispatcher abstraction are cleanly integrated.
+- **M4.2 (Lifecycle & Checkpointing):** `COMPLETE`. Dispatcher owns ExecutionContext, and capabilities (like YOLO) are cooperative for pause/cancel and progress reporting.
 
 ## LAST VERIFIED:
 27 tests passing against real PostgreSQL and real Whisper inference.
@@ -45,12 +47,10 @@ VERIFIED
    - Strictly decoupled from media streams—processes the output array from Phase 5 dynamically in memory.
 
 ## CURRENT LIMITATION:
-- M2 remains partially implemented (FFmpeg and Whisper paths are verified, but other providers like EasyOCR are mocked or incomplete).
-- M3.1 remains partially mocked.
-- M3.2 remains partially mocked.
+- Distributed workers (Celery) are deferred to M4.3. The current ExecutionDispatcher is in-process threading.
 
 ## NEXT DEVELOPMENT AREA:
-M2 Real Media Understanding: Phase 2 (e.g., EasyOCR / Vision capabilities).
+M4.3 Worker Execution / Distribution or M5 (System Observability).
 
 ## DO NOT:
-Start M3.3 before the agreed M2/M3 integration baseline is established.
+Redesign M2 or M3. They are frozen. Focus exclusively on M4.2 control hardening.

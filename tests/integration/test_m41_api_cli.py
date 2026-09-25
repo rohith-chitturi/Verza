@@ -19,7 +19,7 @@ class ControlledWaitCapability:
         self.event = event
 
     def execute(self, context=None, trace_id=None, exec_context=None, **kwargs):
-        from contracts.schemas.execution import PauseRequested, CancelledError
+        from contracts.schemas.execution import CancelledError, PauseRequested
         # Block until the test sets the event, but cooperatively check tokens
         start_time = time.time()
         while not self.event.is_set():

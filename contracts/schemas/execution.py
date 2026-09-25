@@ -1,6 +1,6 @@
-from pydantic import BaseModel, Field
 import threading
-from typing import Any, Optional
+
+from pydantic import BaseModel, Field
 
 
 class CancellationToken:
@@ -30,7 +30,7 @@ class PauseToken:
 
 class Progress(BaseModel):
     percent: int = Field(ge=0, le=100, default=0)
-    message: Optional[str] = None
+    message: str | None = None
 
 
 class ProgressReporter:
@@ -85,8 +85,6 @@ class ExecutionContext:
 
 class CancelledError(Exception):
     """Raised by a capability when cancellation is requested."""
-    pass
 
 class PauseRequested(Exception):
     """Raised by a capability when it cooperatively pauses."""
-    pass
