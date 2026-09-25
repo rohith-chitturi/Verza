@@ -17,7 +17,7 @@ class BaseCapability(ABC):
     @abstractmethod
     def name(self) -> str: ...
 
-    def execute(self, context: AIContext, trace_id: str, **kwargs) -> AIContext:
+    def execute(self, context: AIContext, trace_id: str, exec_context: Any = None, **kwargs) -> AIContext:
         """
         Executes the capability, returning a fully updated immutable AIContext.
         Logs a diff of the WorldState mutations.
@@ -28,7 +28,7 @@ class BaseCapability(ABC):
         world_before = context.world
 
         # 2. Execute the concrete capability logic
-        new_context = self._execute(context, trace_id, **kwargs)
+        new_context = self._execute(context, trace_id, exec_context=exec_context, **kwargs)
 
         # 3. Capture the "After" WorldState
         world_after = new_context.world

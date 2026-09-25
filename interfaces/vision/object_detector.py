@@ -1,4 +1,4 @@
-from typing import Protocol
+from typing import Protocol, Any
 
 from contracts.schemas.world import DetectedObject
 
@@ -15,7 +15,7 @@ class ObjectDetectionProvider(Protocol):
         """Returns True if the provider dependencies and models are correctly installed."""
         ...
 
-    def detect_objects(self, media_path: str) -> list[DetectedObject]:
+    def detect_objects(self, media_path: str, exec_context: Any = None) -> list[DetectedObject]:
         """
         Executes real object detection inference on the physical media.
         """
