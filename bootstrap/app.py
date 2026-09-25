@@ -10,7 +10,17 @@ from core.telemetry.logging import configure_logging, get_logger
 configure_logging()
 logger = get_logger("bootstrap.app")
 
-app = FastAPI(title="Verza Platform API")
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    # Graceful shutdown of execution dispatcher
+    if hasattr(app, "container"):
+        dispatcher = app.container.execution_dispatcher()
+        dispatcher.shutdown(timeout_seconds=10)
+
+app = FastAPI(title="Verza Platform API", lifespan=lifespan)
 container = VerzaContainer()
 app.container = container  # type: ignore
 
