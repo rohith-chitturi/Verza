@@ -55,8 +55,8 @@ def test_m32_reasoning_engine_real_api() -> None:
     # Get Reasoning Engine
     engine: ReasoningEngine = container.reasoning_engine()
     
-    from contracts.schemas.execution import ExecutionContext
-    exec_context = ExecutionContext(run_id="test-run-m32")
+    from contracts.schemas.context import ExecutionContext
+    exec_context = ExecutionContext(trace_id="trace-1", workflow_id="wf-1")
     
     # Run reasoning engine
     final_state = engine.run(initial_context.world, exec_context)
