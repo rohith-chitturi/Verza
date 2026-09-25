@@ -23,7 +23,7 @@ class InMemoryEventBus(EventBus):
     In-memory implementation of the Event Bus.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._subscribers: dict[str, list[Callable[[BaseEvent], None]]] = {}
 
     def subscribe(self, event_type: str, handler: Callable[[BaseEvent], None]) -> None:

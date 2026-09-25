@@ -15,7 +15,7 @@ from providers.inference.gemini.provider import GeminiInferenceProvider
 
 @pytest.mark.real_api
 @pytest.mark.skipif(not os.getenv("GEMINI_API_KEY"), reason="Real API key required")
-def test_m32_reasoning_engine_real_api():
+def test_m32_reasoning_engine_real_api() -> None:
     """
     Verifies that the ReasoningEngine can invoke the real Gemini API
     via the GeminiInferenceProvider, correctly synthesizing M3.1 interpretations
