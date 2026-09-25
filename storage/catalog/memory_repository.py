@@ -84,11 +84,11 @@ class PostgresMemoryRepository:
                     EpisodicMemoryModel.lifecycle == MemoryLifecycle.ACTIVE.value
                 )
                 if query.start_time is not None:
-                    stmt = stmt.where(EpisodicMemoryModel.end_time >= query.start_time)
+                    stmt = stmt.where(EpisodicMemoryModel.end_time >= query.start_time)  # type: ignore[arg-type]
                 if query.end_time is not None:
-                    stmt = stmt.where(EpisodicMemoryModel.start_time <= query.end_time)
+                    stmt = stmt.where(EpisodicMemoryModel.start_time <= query.end_time)  # type: ignore[arg-type]
                 if query.min_confidence > 0:
-                    stmt = stmt.where(EpisodicMemoryModel.confidence >= query.min_confidence)
+                    stmt = stmt.where(EpisodicMemoryModel.confidence >= query.min_confidence)  # type: ignore[arg-type]
                 
                 # Note: Exact entity overlap via JSON containment is dialect specific, 
                 # skipping complex JSON overlap in basic stmt for now to keep it portable, 
@@ -151,7 +151,7 @@ class PostgresMemoryRepository:
                     SemanticMemoryModel.lifecycle == MemoryLifecycle.ACTIVE.value
                 )
                 if query.min_confidence > 0:
-                    sem_stmt = sem_stmt.where(SemanticMemoryModel.confidence >= query.min_confidence)
+                    sem_stmt = sem_stmt.where(SemanticMemoryModel.confidence >= query.min_confidence)  # type: ignore[arg-type]
                     
                 if query_embedding is not None:
                     sem_stmt = sem_stmt.order_by(

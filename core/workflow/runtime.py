@@ -1,4 +1,5 @@
 import uuid
+from typing import Any
 
 from contracts.schemas.runtime import ExecutionState
 from contracts.schemas.workflow import Workflow
@@ -46,7 +47,7 @@ class WorkflowRuntime:
             
         return run_id
 
-    def execute_run(self, run_id: str, workflow: Workflow, replay_from_stage: str | None = None) -> None:
+    def execute_run(self, run_id: str, workflow: Workflow, exec_context: Any = None, replay_from_stage: str | None = None) -> None:
         logger.info(f"Starting workflow execution: {run_id}")
         self._run_repo.update_run_status(run_id, ExecutionState.RUNNING)
         
@@ -145,7 +146,7 @@ class WorkflowRuntime:
                                 world=world_state
                             )
                             
-                            new_context = capability.execute(context=context, trace_id=stage_run_id)
+                            new_context = capability.execute(context=context, trace_id=stage_run_id, exec_context=exec_context)
                             
                             # Save mutated world state back to DB
                             self._run_repo.save_world_state(run_id, new_context.world.model_dump(mode="json"))
@@ -154,6 +155,21 @@ class WorkflowRuntime:
                             logger.info(f"Stage {stage_id} completed successfully via {provider}.")
                             success = True
                         except Exception as e:  # noqa: BLE001
+                            from contracts.schemas.execution import (
+                                CancelledError,
+                                PauseRequested,
+                            )
+                            if isinstance(e, CancelledError):
+                                logger.info(f"Stage {stage_id} cancelled cooperatively.")
+                                self._run_repo.update_stage_status(stage_run_id, ExecutionState.CANCELLED)
+                                self._run_repo.update_run_status(run_id, ExecutionState.CANCELLED)
+                                return
+                            if isinstance(e, PauseRequested):
+                                logger.info(f"Stage {stage_id} paused cooperatively.")
+                                self._run_repo.update_stage_status(stage_run_id, ExecutionState.PAUSED)
+                                self._run_repo.update_run_status(run_id, ExecutionState.PAUSED)
+                                return
+                                
                             logger.warning(f"Stage {stage_id} attempt {attempts} failed with provider {provider}: {e}")
                             if attempts < max_attempts:
                                 self._run_repo.update_stage_status(stage_run_id, ExecutionState.FAILED)
@@ -167,6 +183,13 @@ class WorkflowRuntime:
                     self._run_repo.update_stage_status(stage_run_id, ExecutionState.FAILED)
                     self._run_repo.update_run_status(run_id, ExecutionState.FAILED)
                     return # Fail fast sequentially
+                    
+            if exec_context and exec_context.is_cancelled():
+                self._run_repo.update_run_status(run_id, ExecutionState.CANCELLED)
+                return
+            if exec_context and exec_context.is_pause_requested():
+                self._run_repo.update_run_status(run_id, ExecutionState.PAUSED)
+                return
                     
         self._run_repo.update_run_status(run_id, ExecutionState.COMPLETED)
         logger.info(f"Workflow execution {run_id} completed successfully.")

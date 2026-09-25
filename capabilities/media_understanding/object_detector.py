@@ -27,7 +27,8 @@ class ObjectDetectionCapability(BaseCapability):
         # Note: If no real physical media is mapped during M4, we assume media_id is path.
         # But per M2 patterns, media_id is passed as the path.
         
-        objects = self.provider.detect_objects(media_path=media_path)
+        exec_context = kwargs.get("exec_context")
+        objects = self.provider.detect_objects(media_path=media_path, exec_context=exec_context)
         
         logger.info(
             "object_detection_complete", 

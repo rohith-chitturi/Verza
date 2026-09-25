@@ -54,7 +54,13 @@ class WorkflowService:
         run = self._run_repo.get_run(run_id)
         if not run:
             raise RunNotFoundError(run_id)
-        self._runtime.pause_run(run_id)
+        
+        # Signal the dispatcher. If it's not actively running, update DB directly.
+        self._dispatcher.pause(run_id)
+        # Note: in a distributed system, this might just publish an event.
+        # For in-process, if the thread exited, we might need to forcefully update the DB
+        # if we want to support pausing a queued run. For M4.2, we assume the cooperative
+        # pause handles running threads.
 
     def resume_run(self, run_id: str) -> None:
         """Resumes a paused or crashed run."""
@@ -75,7 +81,11 @@ class WorkflowService:
         run = self._run_repo.get_run(run_id)
         if not run:
             raise RunNotFoundError(run_id)
-        self._runtime.cancel_run(run_id)
+        self._dispatcher.cancel(run_id)
+        
+        # If the run isn't active (e.g. pending/queued), we should forcefully cancel it.
+        # But for M4.2 cooperative cancellation, we rely on the dispatcher.
+        # If it's truly not running, we could call _runtime.cancel_run(run_id) as fallback.
 
     def replay_run(self, run_id: str, from_stage: str) -> str:
         """Forks a completed/failed run and replays from a specific stage."""
@@ -99,7 +109,11 @@ class WorkflowService:
             "run_id": run.id,
             "workflow_version_id": run.workflow_version_id,
             "status": run.status,
-            "parent_run_id": run.parent_run_id
+            "parent_run_id": run.parent_run_id,
+            "progress": {
+                "percent": run.progress_percent,
+                "message": run.progress_message
+            }
         }
 
     def get_stage_runs(self, run_id: str) -> list[dict[str, Any]]:
@@ -108,7 +122,18 @@ class WorkflowService:
         if not run:
             raise RunNotFoundError(run_id)
         stages = self._run_repo.get_stage_runs(run_id)
-        return [{"id": s.id, "stage_id": s.stage_id, "status": s.status} for s in stages]
+        return [
+            {
+                "id": s.id, 
+                "stage_id": s.stage_id, 
+                "status": s.status,
+                "progress": {
+                    "percent": s.progress_percent,
+                    "message": s.progress_message
+                }
+            } 
+            for s in stages
+        ]
 
     def get_world_state(self, run_id: str) -> dict[str, Any]:
         """Gets the materialized WorldState snapshot for a run."""

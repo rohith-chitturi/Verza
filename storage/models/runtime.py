@@ -48,6 +48,8 @@ class WorkflowRunModel(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     started_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    progress_percent: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    progress_message: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Relationships
     stage_runs: Mapped[list["StageRunModel"]] = relationship(
@@ -65,6 +67,8 @@ class StageRunModel(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     started_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    progress_percent: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    progress_message: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     workflow_run: Mapped["WorkflowRunModel"] = relationship(back_populates="stage_runs")
     attempts: Mapped[list["TaskAttemptModel"]] = relationship(

@@ -18,9 +18,18 @@ class ControlledWaitCapability:
     def __init__(self, event: threading.Event):
         self.event = event
 
-    def execute(self, context=None, **kwargs):
-        # Block until the test sets the event
-        self.event.wait(timeout=5.0)
+    def execute(self, context=None, trace_id=None, exec_context=None, **kwargs):
+        from contracts.schemas.execution import CancelledError, PauseRequested
+        # Block until the test sets the event, but cooperatively check tokens
+        start_time = time.time()
+        while not self.event.is_set():
+            if exec_context and exec_context.is_cancelled():
+                raise CancelledError()
+            if exec_context and exec_context.is_pause_requested():
+                raise PauseRequested()
+            if time.time() - start_time > 5.0:
+                break
+            time.sleep(0.1)
         return context
 
 

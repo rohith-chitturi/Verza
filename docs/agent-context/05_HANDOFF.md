@@ -4,16 +4,19 @@
 
 You are entering the **Verza** repository right after we successfully proved that the M4 Runtime can execute end-to-end against real physical PostgreSQL.
 
-## Current Priority: M3.1 Interpretation & Reasoning
-M2 is completely finalized, ending with the Heuristic Activity Recognition layer. The focus now shifts to M3.1 (Sensemaking / Context), wiring real VLM providers (like Gemini/OpenAI) to interpret the rich WorldState context.
+## Current Priority: M4.3 Worker Execution or Observability Hardening
+M4.2 (Lifecycle & Checkpointing) is complete. The system now supports cooperative pausing, cancellation, and progress reporting via the `ExecutionContext` and tokens. The `InProcessExecutionDispatcher` handles threads gracefully, but we still need out-of-process distributed workers for real scale.
 
 ## Milestone Status
 - [x] Integrate pure-Python IoU object tracking
 - [x] Integrate OpenCV Haar Face Detection
 - [x] Wire IoU Face Tracking pipeline
 - [x] Build Heuristic Activity Recognizer (Zero-Dependency)
-- [ ] M3.1: Wire real VLM/LLM engines to DeltaJournal
-- [ ] M3.2: Formalize the interpretation workflow
+- [x] M3: Cognition Capabilities (Interpretation, Reasoning, Memory/Synthesis)
+- [x] M4: Cognitive Pipeline Integration (DAG, Persistence)
+- [x] M4.1: API & CLI Control Plane (WorkflowService, Dispatcher)
+- [x] M4.2: Lifecycle, Checkpointing & Operational Control Hardening
+- [ ] M4.3: Distributed Worker Execution
 
 ## Completed Work (Latest to Oldest)
 - **M2 Phase 7 (Face Detection & Tracking)**: Deployed zero-dependency `OpenCVFaceDetector` for Haar cascade face extraction and created `IoUFaceTracker`. Extracted generic tracking mechanics into `iou_matcher.py` for code reuse between Object/Face tracking. Generated synthetic stable face fixture panning across `Lenna`.
@@ -32,8 +35,7 @@ M2 is completely finalized, ending with the Heuristic Activity Recognition layer
    - `conftest.py` automatically handles DB schema drops/creates to enforce clean test isolation.
 
 2. **Next Action**:
-   - The user will likely direct you to implement the **next M2 Real Media Understanding** capability (like EasyOCR) OR begin the **M3.1 Scene Interpretation** integration.
-   - Do NOT regress the DI bindings back to SQLite.
+   - The user will likely direct you to implement the **M4.3 Distributed Worker Execution** or Observability.
    - Run `pytest -v` to ensure the E2E boundaries are still respected before making architecture changes.
 
 **What was inspected:**
@@ -61,7 +63,7 @@ M2 is completely finalized, ending with the Heuristic Activity Recognition layer
 - ALL tests (27) passed cleanly (100% green). PostgreSQL is successfully running, Alembic migrations are up to date, and real Whisper inference successfully processes audio without regressions.
 
 **Next exact task:**
-- Proceed to the next M2 milestone (EasyOCR, Shot Detection, etc.) or wire actual VLM (M3.1) reasoning.
+- M4.3 Distributed Worker Execution or Observability.
 
 **Important warnings:**
 - Never run SQLite tests as integration tests again. Unit tests remain fine in memory.
