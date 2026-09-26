@@ -8,7 +8,7 @@
   - **Heuristic Activity Recognition** synthesizes `Moving` and `AudioActiveOnScreen` without heavy ML.
 - **M3 (Sensemaking / Context):** `FROZEN`. Complete Interpretation, Reasoning, and Memory DAG nodes.
 - **M4.1 (Control Plane):** `FROZEN`. FastAPI, Typer CLI, and ExecutionDispatcher abstraction are cleanly integrated.
-- **M4.2 (Lifecycle & Checkpointing):** `COMPLETE`. Dispatcher owns ExecutionContext, and capabilities (like YOLO) are cooperative for pause/cancel and progress reporting.
+- **M4.2 (Lifecycle & Checkpointing):** `FROZEN`. Cooperative lifecycle control with capability-controlled checkpoint boundaries. Capabilities request/observe execution control via `ExecutionContext`, while `WorkflowRuntime` remains authoritative for all lifecycle state transitions and persistence.
 
 ## LAST VERIFIED:
 27 tests passing against real PostgreSQL and real Whisper inference.
