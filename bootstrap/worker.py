@@ -1,5 +1,7 @@
 import os
+
 from celery import Celery  # type: ignore[import-untyped]
+
 from bootstrap.container import VerzaContainer
 
 # Setup the DI container

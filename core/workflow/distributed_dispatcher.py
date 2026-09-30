@@ -1,7 +1,7 @@
+from bootstrap.worker import celery_app
 from contracts.schemas.workflow import Workflow
 from core.telemetry.logging import get_logger
 from core.workflow.dispatcher import ExecutionDispatcher
-from bootstrap.worker import celery_app
 
 logger = get_logger("workflow.distributed_dispatcher")
 
